@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1280">
+  <title>Prospects — Voxline Hub</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="voxline-ui.css">
+</head>
+<body data-page="prospects">
+<header class="topbar">
+  <span class="brand">Vox<span class="lb">line</span><span class="brand-app">Hub</span></span>
+  <nav>
+    <a href="#">Tableau de bord</a>
+    <a href="#" class="active">Prospects</a>
+    <a href="#">Ressources</a>
+    <a href="#">Admin</a>
+  </nav>
+  <span class="spacer"></span>
+  <span class="who"><span class="sensitive">Superviseur</span> <span class="who-role">admin</span></span>
+  <button type="button" class="ghost">Déconnexion</button>
+</header>
+<main>
+  <h1>Prospects</h1>
+  <div class="filters">
+    <div class="field" style="flex:2"><label>Recherche</label><input type="text" value="bordeaux" readonly></div>
+    <div class="field"><label>Secteur</label><select><option>Artisanat</option></select></div>
+    <div class="field"><label>Statut pipeline</label><select><option>À contacter</option></select></div>
+    <div class="field"><label>Statut site</label><select><option>Aucun</option></select></div>
+    <div class="field" style="flex:0"><label>&nbsp;</label><button type="button">Filtrer</button></div>
+  </div>
+  <p class="muted">142 prospects affichés</p>
+  <div class="panel" style="padding:0">
+    <table>
+      <thead>
+        <tr>
+          <th>Entreprise</th><th>Secteur</th><th>Ville</th><th>Téléphone</th><th>Site</th><th>Pipeline</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="sensitive">Atelier du Jardin</td><td>Artisanat</td><td>Bordeaux</td><td class="sensitive">05 56 00 00 00</td><td><span class="badge s-aucun">Aucun</span></td><td><span class="badge b-a_contacter">À contacter</span></td></tr>
+        <tr><td class="sensitive">Bio Fraîcheur Local</td><td>Alimentation</td><td>Mérignac</td><td class="sensitive">05 57 00 00 00</td><td><span class="badge s-aucun">Aucun</span></td><td><span class="badge b-contacte">Contacté</span></td></tr>
+        <tr><td class="sensitive">Réseau Habitat Plus</td><td>Immobilier</td><td>Pessac</td><td class="sensitive">05 55 00 00 00</td><td><span class="badge s-aucun">Aucun</span></td><td><span class="badge b-rdv">RDV</span></td></tr>
+        <tr><td class="sensitive">Studio Lumière</td><td>Services</td><td>Bordeaux</td><td class="sensitive">05 56 00 00 01</td><td><span class="badge s-aucun">Aucun</span></td><td><span class="badge b-a_contacter">À contacter</span></td></tr>
+        <tr><td class="sensitive">Maison du Sud-Ouest</td><td>Retail</td><td>Talence</td><td class="sensitive">05 56 00 00 02</td><td><span class="badge s-aucun">Aucun</span></td><td><span class="badge b-gagne">Gagné</span></td></tr>
+        <tr><td class="sensitive">Équipement Pro 33</td><td>BTP</td><td>Bègles</td><td class="sensitive">05 56 00 00 03</td><td><span class="badge s-aucun">Aucun</span></td><td><span class="badge b-a_contacter">À contacter</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

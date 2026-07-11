@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>404 — Page introuvable | Or-Web</title>
+  <meta name="robots" content="noindex, follow"/>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+  <link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin/>
+  <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin/>
+  <link rel="stylesheet" href="/css/fonts.css"/>
+  <style>
+    :root{
+      --bg:#0B0A12; --white:#F4F2FA; --gray:#8B8699;
+      --lime:#C6FF3D; --cyan:#35E5FF; --violet:#A06BFF; --pink:#FF4D8D;
+      --grad:linear-gradient(100deg,var(--lime) 0%,var(--cyan) 38%,var(--violet) 66%,var(--pink) 100%);
+      --display:'Bricolage Grotesque',system-ui,sans-serif;
+      --sans:'DM Sans',system-ui,sans-serif;
+      --mono:'JetBrains Mono',ui-monospace,monospace;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      background:var(--bg); color:var(--white);
+      font-family:var(--sans); font-weight:300;
+      min-height:100dvh; display:flex; align-items:center;
+      padding:clamp(1.5rem,6vw,6rem); overflow:hidden; position:relative;
+      -webkit-font-smoothing:antialiased;
+    }
+    .orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0}
+    .orb1{width:520px;height:520px;background:radial-gradient(circle,rgba(198,255,61,.14),transparent 65%);top:-140px;right:-80px}
+    .orb2{width:420px;height:420px;background:radial-gradient(circle,rgba(160,107,255,.14),transparent 65%);bottom:-120px;left:-60px}
+    .wrap{position:relative;z-index:1;max-width:760px}
+    .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);margin-bottom:1.5rem}
+    .big{
+      font-family:var(--display);font-weight:800;
+      font-size:clamp(5rem,22vw,16rem);line-height:.82;letter-spacing:-.05em;
+      background:var(--grad);-webkit-background-clip:text;background-clip:text;
+      -webkit-text-fill-color:transparent;color:transparent;
+    }
+    h1{font-family:var(--display);font-weight:600;font-size:clamp(1.6rem,4vw,2.6rem);letter-spacing:-.02em;margin:1.5rem 0 1rem}
+    p{color:var(--gray);max-width:44ch;line-height:1.7;margin-bottom:2.5rem}
+    .actions{display:flex;gap:1.6rem;align-items:center;flex-wrap:wrap}
+    .btn{
+      display:inline-flex;align-items:center;gap:.6rem;padding:.9rem 2rem;
+      background:var(--lime);color:#0B0A12;font-weight:600;font-size:.8rem;
+      letter-spacing:.1em;text-transform:uppercase;text-decoration:none;
+      transition:transform .3s,box-shadow .3s;
+    }
+    .btn:hover{transform:translateY(-3px);box-shadow:0 0 32px rgba(198,255,61,.45)}
+    .links{display:flex;gap:1.4rem;flex-wrap:wrap}
+    .links a{color:var(--white);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid transparent;padding-bottom:.2rem;transition:border-color .3s,color .3s}
+    .links a:hover{color:var(--cyan);border-color:var(--cyan)}
+  </style>
+</head>
+<body>
+  <div class="orb orb1" aria-hidden="true"></div>
+  <div class="orb orb2" aria-hidden="true"></div>
+  <div class="wrap">
+    <p class="eyebrow">Erreur 404</p>
+    <div class="big" aria-hidden="true">404</div>
+    <h1>Cette page n'existe pas.</h1>
+    <p>Le lien est peut-être cassé, ou la page a été déplacée. Pas de panique — repartons du bon pied.</p>
+    <div class="actions">
+      <a class="btn" href="/">Retour à l'accueil</a>
+      <div class="links">
+        <a href="/services">Services</a>
+        <a href="/portfolio">Portfolio</a>
+        <a href="/contact">Contact</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,165 @@
+/* Styles communs aux pages étude de cas (projets/*.html) */
+.proj-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 5rem clamp(1.5rem, 6vw, 6rem) 6rem;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .75rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 3rem;
+  transition: color .3s;
+  text-decoration: none;
+}
+.back-link:hover { color: var(--gold); }
+.proj-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  margin-bottom: 5rem;
+}
+.proj-hero-label {
+  display: flex;
+  align-items: center;
+  font-size: .7rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.2rem;
+}
+.proj-hero h1 { margin-bottom: 1.2rem; }
+.proj-hero-desc {
+  font-size: 1rem;
+  color: var(--light);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+}
+.proj-hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.proj-meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+}
+.proj-meta-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: .8rem;
+}
+.proj-meta-item span:first-child {
+  color: var(--gray);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-size: .7rem;
+}
+.proj-meta-item span:last-child { color: var(--white); }
+.demo-tag {
+  display: inline-block;
+  font-family: monospace;
+  font-size: .6rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid color-mix(in srgb, var(--lime) 30%, transparent);
+  padding: .2rem .6rem;
+  margin-left: .8rem;
+  vertical-align: middle;
+}
+.browser-mockup {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 6px;
+  background: #0e0e0e;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .6);
+}
+.browser-bar {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  padding: .55rem .9rem;
+  background: #141414;
+  border-bottom: 1px solid rgba(255, 255, 255, .06);
+}
+.browser-dots { display: flex; gap: .35rem; }
+.b-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.b-dot.r { background: #ff5f57; }
+.b-dot.y { background: #febc2e; }
+.b-dot.g { background: #28c840; }
+.browser-addr {
+  flex: 1;
+  background: rgba(255, 255, 255, .05);
+  border-radius: 3px;
+  padding: .2rem .7rem;
+  font-family: monospace;
+  font-size: .62rem;
+  color: rgba(255, 255, 255, .3);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.browser-frame { position: relative; overflow: hidden; width: 100%; }
+.browser-frame iframe {
+  border: none;
+  display: block;
+  width: 1440px;
+  height: 900px;
+  pointer-events: none;
+  transform-origin: top left;
+  will-change: transform;
+}
+.browser-frame-img { height: auto; }
+.browser-frame-img img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.proj-screens {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 5rem;
+}
+.proj-screen { overflow: hidden; }
+.proj-screen.featured { grid-column: 1 / -1; }
+.proj-body {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 4rem;
+  margin-bottom: 5rem;
+}
+.proj-body h2 { font-size: clamp(1.4rem, 2vw, 2rem); margin-bottom: 1.2rem; }
+.proj-body p { margin-bottom: 1rem; color: var(--gray); font-size: .9rem; line-height: 1.8; }
+.proj-tags-section { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.5rem; }
+.proj-tag-item {
+  font-family: monospace;
+  font-size: .72rem;
+  padding: .3rem .8rem;
+  border: 1px solid color-mix(in srgb, var(--lime) 25%, transparent);
+  color: var(--gold);
+}
+.proj-footer-cta {
+  text-align: center;
+  padding: 4rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, .06);
+}
+.proj-footer-cta h2 { margin-bottom: 1rem; }
+.proj-footer-cta p { color: var(--gray); margin-bottom: 2rem; }
+@media (max-width: 900px) {
+  .proj-hero { grid-template-columns: 1fr; gap: 2rem; }
+  .proj-body { grid-template-columns: 1fr; gap: 2rem; }
+  .proj-screens { grid-template-columns: 1fr; }
+  .proj-screen.featured { aspect-ratio: 4/3; }
+}

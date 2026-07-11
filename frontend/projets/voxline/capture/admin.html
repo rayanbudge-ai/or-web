@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1280">
+  <title>Admin — Voxline Hub</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="voxline-ui.css">
+</head>
+<body data-page="admin">
+<header class="topbar">
+  <span class="brand">Vox<span class="lb">line</span><span class="brand-app">Hub</span></span>
+  <nav>
+    <a href="#">Tableau de bord</a>
+    <a href="#">Prospects</a>
+    <a href="#">Ressources</a>
+    <a href="#" class="active">Admin</a>
+  </nav>
+  <span class="spacer"></span>
+  <span class="who"><span class="sensitive">Superviseur</span> <span class="who-role">admin</span></span>
+  <button type="button" class="ghost">Déconnexion</button>
+</header>
+<main>
+  <h1>Administration</h1>
+  <h2>Import CSV de prospects</h2>
+  <div class="panel">
+    <p class="muted" style="margin-bottom:8px">
+      Colonnes attendues :
+      <code>nom_entreprise,secteur,ville,adresse,telephone,email,statut_site,source,siret</code>.
+    </p>
+    <div class="row" style="margin-top:0;align-items:flex-end">
+      <div class="field" style="margin-bottom:0"><label>Fichier CSV</label><input type="text" value="prospects-juillet-2026.csv" readonly></div>
+      <div class="field" style="flex:0"><label>&nbsp;</label><button type="button">Prévisualiser</button></div>
+    </div>
+    <div class="import-summary" style="margin-top:16px">
+      <div class="counter" data-k="nouveau"><div class="n">312</div><div class="l">Lignes lues</div></div>
+      <div class="counter" data-k="gagne"><div class="n">284</div><div class="l">À créer</div></div>
+      <div class="counter" data-k="contacte"><div class="n">18</div><div class="l">À fusionner</div></div>
+      <div class="counter" data-k="perdu"><div class="n">10</div><div class="l">Rejetées</div></div>
+    </div>
+  </div>
+  <h2>Comptes utilisateurs</h2>
+  <div class="panel" style="padding:0">
+    <table>
+      <thead>
+        <tr><th>Nom</th><th>Email</th><th>Rôle</th><th>État</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="sensitive">Superviseur</td><td class="sensitive">admin@exemple.fr</td><td><span class="badge">admin</span></td><td><span class="badge" style="color:var(--ok)">actif</span></td></tr>
+        <tr><td class="sensitive">Agent 04</td><td class="sensitive">agent04@exemple.fr</td><td><span class="badge">prospecteur</span></td><td><span class="badge" style="color:var(--ok)">actif</span></td></tr>
+        <tr><td class="sensitive">Agent 07</td><td class="sensitive">agent07@exemple.fr</td><td><span class="badge">prospecteur</span></td><td><span class="badge" style="color:var(--ok)">actif</span></td></tr>
+        <tr><td class="sensitive">Agent 12</td><td class="sensitive">agent12@exemple.fr</td><td><span class="badge">prospecteur</span></td><td><span class="badge" style="color:var(--ok)">actif</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

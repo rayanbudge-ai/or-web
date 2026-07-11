@@ -1,0 +1,15 @@
+# Blueprint Render — documente la config de déploiement.
+# ⚠️ Un service déjà créé via le dashboard ne lit PAS automatiquement ce fichier.
+#    Reporte donc le Build Command ci-dessous dans le dashboard du service
+#    (Settings → Build Command), ou recrée le service en Blueprint.
+#
+# Le Build Command installe les devDependencies (esbuild) ET lance le build
+# qui génère frontend/dist/{styles.min.css,app.min.js} avant le démarrage.
+services:
+  - type: web
+    name: or-web
+    runtime: node
+    # --include=dev force l'installation d'esbuild même si NODE_ENV=production.
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    autoDeploy: true

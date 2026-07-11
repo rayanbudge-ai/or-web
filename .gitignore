@@ -1,0 +1,33 @@
+# Dépendances
+backend/node_modules/
+node_modules/
+
+# CRM interne (repo/déploiement séparés) — non versionné dans ce repo public
+app/
+
+# Artefacts de build (générés par `npm run build`)
+frontend/dist/
+frontend/services/
+frontend/blog/
+frontend/mentions-legales/
+frontend/politique-de-confidentialite/
+frontend/sitemap.xml
+frontend/projets/*.html
+
+# Variables secrètes — NE JAMAIS commiter
+.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# Système
+.DS_Store
+Thumbs.db
+
+# Fichiers de session locaux (outils/IDE) — jamais dans le repo public
+.claude/
+.claude.backup-*/
+.mcp.json
+mcps/
+terminals/

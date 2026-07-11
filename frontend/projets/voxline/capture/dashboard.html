@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1280">
+  <title>Tableau de bord — Voxline Hub</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="voxline-ui.css">
+</head>
+<body data-page="dashboard">
+<header class="topbar">
+  <span class="brand">Vox<span class="lb">line</span><span class="brand-app">Hub</span></span>
+  <nav>
+    <a href="#" class="active">Tableau de bord</a>
+    <a href="#">Prospects</a>
+    <a href="#">Ressources</a>
+    <a href="#">Admin</a>
+  </nav>
+  <span class="spacer"></span>
+  <span class="who"><span class="sensitive">Superviseur</span> <span class="who-role">admin</span></span>
+  <button type="button" class="ghost">Déconnexion</button>
+</header>
+<main>
+  <h1>Tableau de bord</h1>
+  <h2>Pipeline</h2>
+  <div class="counters">
+    <div class="counter" data-k="nouveau"><div class="n">48</div><div class="l">Nouveau</div></div>
+    <div class="counter" data-k="a_contacter"><div class="n">124</div><div class="l">À contacter</div></div>
+    <div class="counter" data-k="contacte"><div class="n">67</div><div class="l">Contacté</div></div>
+    <div class="counter" data-k="rdv"><div class="n">19</div><div class="l">RDV</div></div>
+    <div class="counter" data-k="proposition"><div class="n">11</div><div class="l">Proposition</div></div>
+    <div class="counter" data-k="gagne"><div class="n">8</div><div class="l">Gagné</div></div>
+    <div class="counter" data-k="perdu"><div class="n">23</div><div class="l">Perdu</div></div>
+  </div>
+  <h2>10 dernières interactions</h2>
+  <div class="panel" style="padding:0">
+    <table>
+      <thead>
+        <tr><th>Date</th><th>Type</th><th>Entreprise</th><th>Résultat</th><th>Par</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="muted">10/07/2026</td><td><span class="badge">Appel</span></td><td class="sensitive">Atelier du Jardin</td><td>Relance J+7</td><td class="sensitive">Agent 12</td></tr>
+        <tr><td class="muted">10/07/2026</td><td><span class="badge">Email</span></td><td class="sensitive">Bio Fraîcheur Local</td><td>Devis envoyé</td><td class="sensitive">Agent 04</td></tr>
+        <tr><td class="muted">09/07/2026</td><td><span class="badge">Appel</span></td><td class="sensitive">Réseau Habitat Plus</td><td>RDV fixé</td><td class="sensitive">Agent 07</td></tr>
+        <tr><td class="muted">09/07/2026</td><td><span class="badge">Appel</span></td><td class="sensitive">Studio Lumière</td><td>Pas de réponse</td><td class="sensitive">Agent 12</td></tr>
+        <tr><td class="muted">09/07/2026</td><td><span class="badge">Visite</span></td><td class="sensitive">Maison du Sud-Ouest</td><td>Intéressé</td><td class="sensitive">Agent 02</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

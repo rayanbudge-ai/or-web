@@ -1,0 +1,31 @@
+/* ===== FONTS SELF-HOSTÉES (sous-ensemble latin, woff2 variables) =====
+   Servies depuis /fonts au lieu de Google Fonts : supprime le hop
+   fonts.googleapis.com (~750 ms) + la connexion cross-origin gstatic du
+   chemin critique, et permet de précharger la police du LCP.
+   Sous-ensembles cyrillique/grec/vietnamien retirés (non utilisés).
+   Polices variables : une seule requête couvre toute la plage de graisses.
+   font-display: swap conservé (texte de repli immédiat). */
+
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 400 800;        /* axe variable wght */
+  font-display: swap;
+  src: url('/fonts/bricolage-grotesque-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 300 500;
+  font-display: swap;
+  src: url('/fonts/dm-sans-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
+}

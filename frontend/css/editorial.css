@@ -1,0 +1,58 @@
+/* ===== SYSTÈME ÉDITORIAL =====
+   Grille 12 colonnes cassable + utilitaires typographiques.
+   Socle des dispositions asymétriques (hero, services, process, portfolio). */
+
+/* Conteneur éditorial : gouttières + largeur max, centré */
+.ed {
+  --ed-gutter: clamp(1.5rem, 6vw, 6rem);
+  width: 100%;
+  max-width: 1500px;
+  margin-inline: auto;
+  padding-inline: var(--ed-gutter);
+}
+
+/* Grille 12 colonnes — les enfants s'ancrent où ils veulent (asymétrie) */
+.ed-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: clamp(1rem, 2vw, 2rem);
+}
+
+/* Sortir de la grille, pleine largeur viewport */
+.full-bleed {
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+}
+
+/* Marginalia : petites notes mono en marge */
+.marginalia {
+  font-family: var(--mono);
+  font-size: .7rem;
+  font-weight: 400;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--gray);
+  line-height: 1.4;
+}
+
+/* Texte vertical (étiquettes de marge) */
+.vert {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* Chiffre géant — moment typographique (numéros de projet / process) */
+.display-num {
+  font-family: var(--display);
+  font-weight: 800;
+  line-height: .78;
+  letter-spacing: -.04em;
+  font-size: clamp(4rem, 14vw, 13rem);
+}
+
+/* Filet de section discret (séparateur éditorial fin) */
+.rule {
+  height: 1px;
+  border: 0;
+  background: rgba(255, 255, 255, .1);
+}
