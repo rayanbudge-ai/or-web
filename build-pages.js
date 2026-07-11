@@ -31,8 +31,8 @@ function navbar(active) {
 <a class="skip-link" href="#main-content">Aller au contenu principal</a>
 <nav id="navbar">
   <div class="nav-inner">
-    <a class="logo" href="/" aria-label="Or-Web — accueil">
-      <span class="lb">&lt;</span><span>Or</span><span class="lb">-</span><span style="color:var(--gold)">Web</span><span class="lb">/&gt;</span>
+    <a class="logo" href="/" aria-label="OR-Web — accueil">
+      <span class="lb">&lt;</span><span>OR</span><span class="lb">-</span><span style="color:var(--gold)">Web</span><span class="lb">/&gt;</span>
     </a>
     <ul class="nav-links" role="list">
       <li><a href="/"${act('home')}>Accueil</a></li>
@@ -66,7 +66,7 @@ function footer() {
   <div class="divider"></div>
   <div class="foot-inner">
     <div class="foot-brand">
-      <span class="foot-logo"><span class="lb">&lt;</span>Or-Web<span class="lb">/&gt;</span></span>
+      <span class="foot-logo"><span class="lb">&lt;</span>OR-Web<span class="lb">/&gt;</span></span>
       <p>L'excellence numérique,<br>forgée avec précision.</p>
     </div>
     <div class="foot-nav">
@@ -95,12 +95,12 @@ function footer() {
     </div>
   </div>
   <div class="foot-bottom">
-    <p>© 2026 Or-Web. Tous droits réservés.</p>
+    <p>© 2026 OR-Web. Tous droits réservés.</p>
     <nav class="foot-legal" aria-label="Informations légales">
       <a href="/mentions-legales">Mentions légales</a>
       <a href="/politique-de-confidentialite">Politique de confidentialité</a>
     </nav>
-    <p>Site réalisé par Or-Web — Agence Web Premium</p>
+    <p>Site réalisé par OR-Web — Agence Web Premium</p>
   </div>
 </footer>`;
 }
@@ -140,14 +140,14 @@ function head({ title, desc, canonical, jsonld }) {
   <title>${title}</title>
   <meta name="description" content="${desc}"/>
   <meta name="robots" content="index, follow, max-image-preview:large"/>
-  <meta name="author" content="Or-Web"/>
+  <meta name="author" content="OR-Web"/>
   <meta name="theme-color" content="#0B0A12"/>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
   <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
   <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
   <link rel="canonical" href="${canonical}"/>
   <meta property="og:type" content="website"/>
-  <meta property="og:site_name" content="Or-Web"/>
+  <meta property="og:site_name" content="OR-Web"/>
   <meta property="og:locale" content="fr_FR"/>
   <meta property="og:url" content="${canonical}"/>
   <meta property="og:title" content="${title}"/>
@@ -209,7 +209,7 @@ function projectHead(p) {
   <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
   <link rel="canonical" href="${canonical}"/>
   <meta property="og:type" content="website"/>
-  <meta property="og:site_name" content="Or-Web"/>
+  <meta property="og:site_name" content="OR-Web"/>
   <meta property="og:locale" content="fr_FR"/>
   <meta property="og:url" content="${canonical}"/>
   <meta property="og:title" content="${d.metaTitle}"/>
@@ -344,7 +344,7 @@ function serviceLD(name, desc, url) {
     description: desc,
     areaServed: { '@type': 'City', name: 'Bordeaux' },
     provider: {
-      '@type': 'ProfessionalService', name: 'Or-Web', url: SITE + '/',
+      '@type': 'ProfessionalService', name: 'OR-Web', url: SITE + '/',
       telephone: '+33649951225', email: 'contact@or-web.fr',
       address: { '@type': 'PostalAddress', addressLocality: 'Bordeaux', addressRegion: 'Nouvelle-Aquitaine', addressCountry: 'FR' },
     },
@@ -413,8 +413,8 @@ const SERVICES = [
 ];
 {
   const url = '/services';
-  const title = 'Nos services — Agence web à Bordeaux | Or-Web';
-  const desc = "Les services d'Or-Web, agence web à Bordeaux : création de site vitrine, e-commerce, application web sur mesure et optimisation SEO & performance. Devis gratuit.";
+  const title = 'Nos services — Agence web à Bordeaux | OR-Web';
+  const desc = "Les services d'OR-Web, agence web à Bordeaux : création de site vitrine, e-commerce, application web sur mesure et optimisation SEO & performance. Devis gratuit.";
   pages.push({
     out: 'services',
     title, desc, canonical: SITE + url,
@@ -440,7 +440,7 @@ ${ctaBand('Un projet en tête ?', 'Premier appel gratuit de 30 minutes. Réponse
 /* —— SERVICE : site vitrine —— */
 {
   const url = '/services/creation-site-vitrine-bordeaux';
-  const title = 'Création de site vitrine à Bordeaux | Or-Web';
+  const title = 'Création de site vitrine à Bordeaux | OR-Web';
   const desc = "Agence web à Bordeaux : création de sites vitrines sur mesure, rapides et optimisés SEO. Design premium, 100/100 PageSpeed, sans template. Devis gratuit.";
   const faqs = [
     { q: 'Combien coûte un site vitrine à Bordeaux ?', a: "Cela dépend du nombre de pages, du niveau de personnalisation et des fonctionnalités souhaitées (formulaire, galerie, prise de rendez-vous…). Nous vous proposons un devis gratuit après un premier échange de 30 minutes, une fois vos besoins clarifiés." },
@@ -475,7 +475,7 @@ ${ctaBand('Prêt à lancer votre site vitrine ?', 'Premier appel gratuit de 30 m
 /* —— SERVICE : e-commerce —— */
 {
   const url = '/services/creation-site-e-commerce-bordeaux';
-  const title = 'Création de site e-commerce à Bordeaux | Or-Web';
+  const title = 'Création de site e-commerce à Bordeaux | OR-Web';
   const desc = "Création de boutiques en ligne sur mesure à Bordeaux : sites e-commerce rapides, optimisés conversion et SEO. Design premium, sans template. Devis gratuit.";
   const faqs = [
     { q: 'Comment se passe la création de ma boutique ?', a: "On commence par comprendre ce que vous vendez et comment vos clients achètent. Ensuite : présentation des pages clés à valider, mise en place du catalogue et du paiement, tests de commande, puis ouverture. Vous êtes guidé à chaque étape." },
@@ -510,7 +510,7 @@ ${ctaBand('Prêt à vendre en ligne ?', 'Premier appel gratuit de 30 minutes. R�
 /* —— SERVICE : SEO & performance —— */
 {
   const url = '/services/optimisation-seo-performance-bordeaux';
-  const title = 'Optimisation SEO & performance web à Bordeaux | Or-Web';
+  const title = 'Optimisation SEO & performance web à Bordeaux | OR-Web';
   const desc = "Optimisation SEO et Core Web Vitals à Bordeaux : audit, performance, référencement technique. De 77 à 100/100 PageSpeed sur notre propre site. Devis gratuit.";
   const faqs = [
     { q: 'Pourquoi mon site est-il lent sur mobile ?', a: "Souvent : images trop lourdes, trop d'éléments qui se chargent en même temps, ou une page mal organisée. Résultat : le visiteur attend, s'impatiente et part. Google le voit aussi, et finit par vous montrer moins souvent." },
@@ -550,7 +550,7 @@ ${ctaBand('Votre site mérite un meilleur score', 'Audit et premier appel gratui
 /* —— SERVICE : application web —— */
 {
   const url = '/services/developpement-application-web-bordeaux';
-  const title = 'Développement d\'application web sur mesure à Bordeaux | Or-Web';
+  const title = 'Développement d\'application web sur mesure à Bordeaux | OR-Web';
   const desc = "Développement d'applications web et outils métier sur mesure à Bordeaux : dashboards, espaces clients, SaaS. Performants, sécurisés et évolutifs. Devis gratuit.";
   const faqs = [
     { q: 'C\'est quoi la différence avec un site vitrine ?', a: "Un site vitrine présente votre activité. Une application web, c'est un outil en ligne : vos clients ou vos équipes se connectent, consultent des infos, remplissent des formulaires, suivent des dossiers… Comme un logiciel, mais accessible depuis un navigateur." },
@@ -592,7 +592,7 @@ const ARTICLES = [
     title: 'De 77 à 100/100 : comment nous avons optimisé les Core Web Vitals d\'or-web.fr',
     h1: 'De 77 à 100/100 : optimiser les Core Web Vitals d\'un site, en vanilla',
     cardTitle: 'De 77 à 100/100 : optimiser les Core Web Vitals, en vanilla',
-    desc: "Étude de cas technique : comment Or-Web a fait passer son site de 77 à 100/100 sur Google PageSpeed mobile (FCP 3,8→1,1s, LCP 3,8→1,7s), en vanilla.",
+    desc: "Étude de cas technique : comment OR-Web a fait passer son site de 77 à 100/100 sur Google PageSpeed mobile (FCP 3,8→1,1s, LCP 3,8→1,7s), en vanilla.",
     excerpt: "Comment nous avons fait passer or-web.fr d'un score PageSpeed mobile de 77 à un 100/100 parfait — 13 requêtes ramenées à 2, polices auto-hébergées, élément LCP peint immédiatement. La méthode, étape par étape.",
     date: '2026-06-21', dateLabel: '21 juin 2026', tag: 'Étude de cas',
     image: SITE + '/img/pagespeed-mobile-avant.png',
@@ -667,22 +667,22 @@ const ARTICLES = [
     <blockquote>La vraie question n'est pas « combien ça coûte au départ », mais « combien ça vous coûte sur trois ans ».</blockquote>
     <h2>Alors, lequel choisir ?</h2>
     <p>Un blog personnel ou un site jetable ? WordPress fait le travail. Mais dès que votre site est un <strong>outil commercial sérieux</strong> — votre vitrine principale, une boutique, une image de marque premium — le sur-mesure devient le choix rentable : plus rapide, mieux référencé, plus sûr, et réellement à vous.</p>
-    <p>C'est notre parti pris chez Or-Web : <strong>zéro template</strong>, du code propre et performant. <a href="/services/creation-site-vitrine-bordeaux">Voir nos sites vitrines</a> ou <a href="/contact">parler de votre projet</a>.</p>`,
+    <p>C'est notre parti pris chez OR-Web : <strong>zéro template</strong>, du code propre et performant. <a href="/services/creation-site-vitrine-bordeaux">Voir nos sites vitrines</a> ou <a href="/contact">parler de votre projet</a>.</p>`,
   },
 ];
 
 ARTICLES.forEach(a => {
   pages.push({
     out: 'blog/' + a.slug,
-    title: a.title + ' | Blog Or-Web',
+    title: a.title + ' | Blog OR-Web',
     desc: a.desc, canonical: SITE + a.url,
     jsonld: [
       {
         '@context': 'https://schema.org', '@type': 'Article',
         headline: a.title, description: a.desc,
         datePublished: a.date, dateModified: a.date, image: a.image,
-        author: { '@type': 'Organization', name: 'Or-Web', url: SITE + '/' },
-        publisher: { '@type': 'Organization', name: 'Or-Web', url: SITE + '/' },
+        author: { '@type': 'Organization', name: 'OR-Web', url: SITE + '/' },
+        publisher: { '@type': 'Organization', name: 'OR-Web', url: SITE + '/' },
         mainEntityOfPage: SITE + a.url,
       },
       breadcrumbLD([{ name: 'Accueil', url: '/' }, { name: 'Blog', url: '/blog' }, { name: a.cardTitle, url: a.url }]),
@@ -704,8 +704,8 @@ ${ctaBand('Un projet web en tête ?', 'Premier appel gratuit de 30 minutes. Rép
 /* —— BLOG : index —— */
 {
   const url = '/blog';
-  const title = 'Blog — Web, performance & SEO | Or-Web Bordeaux';
-  const desc = "Le blog d'Or-Web, agence web à Bordeaux : études de cas, performance web, Core Web Vitals, SEO et bonnes pratiques de développement.";
+  const title = 'Blog — Web, performance & SEO | OR-Web Bordeaux';
+  const desc = "Le blog d'OR-Web, agence web à Bordeaux : études de cas, performance web, Core Web Vitals, SEO et bonnes pratiques de développement.";
   const cards = ARTICLES.map((a, i) => `
       <li>
         <a class="blog-card ${revealStagger(i)}" href="${a.url}">
@@ -719,12 +719,12 @@ ${ctaBand('Un projet web en tête ?', 'Premier appel gratuit de 30 minutes. Rép
     out: 'blog',
     title, desc, canonical: SITE + url,
     jsonld: [
-      { '@context': 'https://schema.org', '@type': 'Blog', name: 'Blog Or-Web', url: SITE + url, description: desc },
+      { '@context': 'https://schema.org', '@type': 'Blog', name: 'Blog OR-Web', url: SITE + url, description: desc },
       breadcrumbLD([{ name: 'Accueil', url: '/' }, { name: 'Blog', url }]),
     ],
     body: `
 ${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Blog', url }])}
-${pageHero('(Blog)', 'Le <span class="gold">blog</span> d\'Or-Web', 'Études de cas, performance web, SEO et coulisses de nos projets. Du concret, mesuré et vérifiable.')}
+${pageHero('(Blog)', 'Le <span class="gold">blog</span> d\'OR-Web', 'Études de cas, performance web, SEO et coulisses de nos projets. Du concret, mesuré et vérifiable.')}
 <section class="lp-section" style="border-top:none;padding-top:0">
   <div class="ed">
     <ul class="blog-list" role="list">${cards}
@@ -753,7 +753,7 @@ function legalIdentityBlock() {
 
 {
   const url = '/mentions-legales';
-  const title = 'Mentions légales | Or-Web';
+  const title = 'Mentions légales | OR-Web';
   const desc = "Mentions légales du site or-web.fr : éditeur, hébergement, propriété intellectuelle et contact.";
   pages.push({
     out: 'mentions-legales',
@@ -775,9 +775,9 @@ ${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Mentions légales', url }]
     <p>Le site est hébergé par :</p>
     <p><strong>${LEGAL.host.name}</strong><br>${LEGAL.host.address}<br><a href="${LEGAL.host.website}" target="_blank" rel="noopener">${LEGAL.host.website}</a></p>
     <h2>Propriété intellectuelle</h2>
-    <p>L'ensemble des éléments du site (textes, visuels, charte graphique, code source, logos) est la propriété exclusive d'Or-Web ou de ses partenaires, sauf mention contraire. Toute reproduction, représentation ou adaptation, totale ou partielle, sans autorisation écrite préalable, est interdite.</p>
+    <p>L'ensemble des éléments du site (textes, visuels, charte graphique, code source, logos) est la propriété exclusive d'OR-Web ou de ses partenaires, sauf mention contraire. Toute reproduction, représentation ou adaptation, totale ou partielle, sans autorisation écrite préalable, est interdite.</p>
     <h2>Responsabilité</h2>
-    <p>Or-Web s'efforce d'assurer l'exactitude des informations publiées sur ce site. Toutefois, Or-Web ne saurait être tenue responsable des omissions, inexactitudes ou indisponibilités temporaires du service.</p>
+    <p>OR-Web s'efforce d'assurer l'exactitude des informations publiées sur ce site. Toutefois, OR-Web ne saurait être tenue responsable des omissions, inexactitudes ou indisponibilités temporaires du service.</p>
     <h2>Contact</h2>
     <p>Pour toute question relative au site ou à son contenu : <a href="mailto:${LEGAL.email}">${LEGAL.email}</a> ou via le <a href="/contact">formulaire de contact</a>.</p>
   </div>
@@ -787,8 +787,8 @@ ${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Mentions légales', url }]
 
 {
   const url = '/politique-de-confidentialite';
-  const title = 'Politique de confidentialité | Or-Web';
-  const desc = "Politique de confidentialité d'Or-Web : données collectées via le formulaire de contact, finalités, durée de conservation et vos droits RGPD.";
+  const title = 'Politique de confidentialité | OR-Web';
+  const desc = "Politique de confidentialité d'OR-Web : données collectées via le formulaire de contact, finalités, durée de conservation et vos droits RGPD.";
   pages.push({
     out: 'politique-de-confidentialite',
     title, desc, canonical: SITE + url,
@@ -825,7 +825,7 @@ ${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Politique de confidentiali
     <h2>Durée de conservation</h2>
     <p>Les messages reçus sont conservés le temps nécessaire au traitement de votre demande, puis archivés ou supprimés au plus tard <strong>3 ans</strong> après le dernier contact, sauf obligation légale contraire.</p>
     <h2>Destinataires</h2>
-    <p>Les données sont accessibles uniquement aux personnes habilitées chez Or-Web. Elles ne sont ni vendues ni cédées à des tiers. Les emails transitent par notre prestataire SMTP (OVH) et peuvent transiter par notre hébergeur (Render) dans le cadre technique du service.</p>
+    <p>Les données sont accessibles uniquement aux personnes habilitées chez OR-Web. Elles ne sont ni vendues ni cédées à des tiers. Les emails transitent par notre prestataire SMTP (OVH) et peuvent transiter par notre hébergeur (Render) dans le cadre technique du service.</p>
     <h2>Cookies et traceurs</h2>
     <p>Le site vitrine or-web.fr ne dépose pas de cookies publicitaires ou de mesure d'audience tiers à ce jour. Seuls des cookies techniques strictement nécessaires au fonctionnement du site peuvent être utilisés par l'hébergeur.</p>
     <h2>Vos droits</h2>

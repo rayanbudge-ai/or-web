@@ -1,6 +1,6 @@
-# Or-Web — Vitrine or-web.fr
+# OR-Web — Vitrine or-web.fr
 
-Site de l'agence Or-Web (Bordeaux) : HTML/CSS/JS vanilla, Express minimal, déployé sur Render.
+Site de l'agence OR-Web (Bordeaux) : HTML/CSS/JS vanilla, Express minimal, déployé sur Render.
 
 ## Structure du projet
 

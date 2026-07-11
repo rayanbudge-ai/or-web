@@ -66,16 +66,16 @@ const BASE_HTML = baseHtml;
 // Meta par route — source de vérité SEO (rechargement complet, pas de mise à jour client).
 const ROUTE_META = {
   '/': {
-    title: 'Or-Web — Agence Web Premium à Bordeaux | Sites sur mesure',
-    desc: 'Or-Web, agence web à Bordeaux : création de sites vitrines, e-commerce et applications web sur mesure. Design premium, performance et SEO.',
+    title: 'OR-Web — Agence Web Premium à Bordeaux | Sites sur mesure',
+    desc: 'OR-Web, agence web à Bordeaux : création de sites vitrines, e-commerce et applications web sur mesure. Design premium, performance et SEO.',
   },
   '/portfolio': {
-    title: 'Portfolio — Nos réalisations web | Or-Web Bordeaux',
-    desc: "Portfolio Or-Web : sites vitrines, e-commerce et optimisations SEO & performance. Filtrez par service et explorez chaque étude de cas.",
+    title: 'Portfolio — Nos réalisations web | OR-Web Bordeaux',
+    desc: "Portfolio OR-Web : sites vitrines, e-commerce et optimisations SEO & performance. Filtrez par service et explorez chaque étude de cas.",
   },
   '/contact': {
-    title: 'Contact — Démarrons votre projet web | Or-Web Bordeaux',
-    desc: 'Contactez Or-Web, agence web à Bordeaux. Devis gratuit pour votre site vitrine, e-commerce ou application web. Réponse sous 24h.',
+    title: 'Contact — Démarrons votre projet web | OR-Web Bordeaux',
+    desc: 'Contactez OR-Web, agence web à Bordeaux. Devis gratuit pour votre site vitrine, e-commerce ou application web. Réponse sous 24h.',
   },
 };
 
@@ -220,14 +220,14 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
 
   // Structure de l'email que TU vas recevoir
   const mailOptions = {
-    from: `"Or-Web - Contact" <${process.env.SMTP_USER}>`,
+    from: `"OR-Web - Contact" <${process.env.SMTP_USER}>`,
     to: process.env.NOTIFICATION_EMAIL, // L'adresse qui reçoit les leads
     replyTo: email, // Permet de cliquer sur "Répondre" pour écrire directement au client
     subject: `✨ [Nouveau Message] ${subject}`,
     text: `Nom: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
     html: `
       <div style="font-family: sans-serif; padding: 20px; color: #111; background-color: #f5f5f0;">
-        <h2 style="color: #C9A84C;">Nouveau message reçu depuis Or-Web</h2>
+        <h2 style="color: #C9A84C;">Nouveau message reçu depuis OR-Web</h2>
         <p><strong>Nom :</strong> ${safeName}</p>
         <p><strong>Email :</strong> <a href="mailto:${safeEmail}">${safeEmail}</a></p>
         <p><strong>Sujet :</strong> ${safeSubject}</p>
@@ -254,7 +254,7 @@ app.get('*', (req, res) => {
 
 // Démarrage du serveur
 const server = app.listen(PORT, () => {
-  console.log(`Serveur Or-Web démarré sur le port ${PORT}`);
+  console.log(`Serveur OR-Web démarré sur le port ${PORT}`);
 });
 
 // Arrêt propre : Render envoie SIGTERM à chaque déploiement — on laisse les

@@ -31,8 +31,8 @@
       siteUrl: 'iznogrillz.com',
       url: 'projets/iznogrillz.html',
       detail: {
-        metaTitle: 'IznoGrillz — E-commerce sur mesure | Portfolio Or-Web',
-        metaDesc: "Étude de cas IznoGrillz : e-commerce grillz custom or et argent, hero vidéo et panier intégré. Réalisé en HTML/CSS/JS vanilla par Or-Web.",
+        metaTitle: 'IznoGrillz — E-commerce sur mesure | Portfolio OR-Web',
+        metaDesc: "Étude de cas IznoGrillz : e-commerce grillz custom or et argent, hero vidéo et panier intégré. Réalisé en HTML/CSS/JS vanilla par OR-Web.",
         label: 'E-commerce',
         heroTitle: 'IZNO<span class="gold">GRILLZ</span>',
         heroDesc: "Site vitrine & e-commerce pour un artisan bijoutier spécialisé dans la fabrication de grillz custom sur mesure — or 18k, argent 925, diamants VVS. Design Cyberpunk / Brutaliste avec effets glitch, hero vidéo plein écran et catalogue avec panier intégré.",
@@ -69,8 +69,8 @@
       siteUrl: 'lhomme-invisible-tattoo.fr',
       url: 'projets/lhomme-invisible.html',
       detail: {
-        metaTitle: "L'Homme Invisible — Vitrine tatouage | Portfolio Or-Web",
-        metaDesc: "Étude de cas L'Homme Invisible : vitrine tatouage à Bordeaux, galerie immersive et réservation en ligne. Réalisé en vanilla par Or-Web.",
+        metaTitle: "L'Homme Invisible — Vitrine tatouage | Portfolio OR-Web",
+        metaDesc: "Étude de cas L'Homme Invisible : vitrine tatouage à Bordeaux, galerie immersive et réservation en ligne. Réalisé en vanilla par OR-Web.",
         label: 'Vitrine',
         heroTitle: "L'HOMME <span class=\"gold\">INVISIBLE</span>",
         heroDesc: "Site vitrine pour un salon de tatouage d'exception à Bordeaux. Curseur personnalisé, galerie artistique immersive, fiches artistes, formulaire de réservation et animations soignées. Un univers sombre et élégant à l'image de l'artiste.",
@@ -106,7 +106,7 @@
       siteUrl: 'casa-terra-bordeaux.fr',
       url: 'projets/casa-terra.html',
       detail: {
-        metaTitle: 'Casa Terra — Vitrine premium | Portfolio Or-Web',
+        metaTitle: 'Casa Terra — Vitrine premium | Portfolio OR-Web',
         metaDesc: "Étude de cas Casa Terra : vitrine premium pour un concept store bordelais. Design éditorial, marquee et animations fluides, en vanilla.",
         label: 'Vitrine',
         heroTitle: 'CASA <span class="gold">TERRA</span>',
@@ -143,7 +143,7 @@
       siteUrl: 'app.voxline.fr',
       url: 'projets/voxline.html',
       detail: {
-        metaTitle: "Voxline — Application prospection centre d'appel | Portfolio Or-Web",
+        metaTitle: "Voxline — Application prospection centre d'appel | Portfolio OR-Web",
         metaDesc: "Étude de cas Voxline : application web de prospection B2B pour centre d'appel. Pipeline, fiches prospects, interactions et import CSV, en Node.js et PostgreSQL.",
         label: 'Application web',
         heroTitle: 'VOX<span class="gold">LINE</span>',
@@ -170,7 +170,7 @@
       id: 'or-web-perf',
       service: 'seo',
       subTypeLabel: 'SEO & Performance',
-      title: 'Or-Web',
+      title: 'OR-Web',
       tags: ['PageSpeed 100', 'Core Web Vitals', 'esbuild', 'Accessibilité AA'],
       desc: "Refonte technique d'or-web.fr : score mobile 77 → 100/100 sur PageSpeed Insights. Build esbuild, polices self-hostées, zéro blocage.",
       accent: '#C6FF3D',

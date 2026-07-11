@@ -4,7 +4,7 @@ const FOOTER_HTML = `
   <div class="divider"></div>
   <div class="foot-inner">
     <div class="foot-brand">
-      <span class="foot-logo"><span class="lb">&lt;</span>Or-Web<span class="lb">/&gt;</span></span>
+      <span class="foot-logo"><span class="lb">&lt;</span>OR-Web<span class="lb">/&gt;</span></span>
       <p>L'excellence numérique,<br>forgée avec précision.</p>
     </div>
     <div class="foot-nav">
@@ -33,12 +33,12 @@ const FOOTER_HTML = `
     </div>
   </div>
   <div class="foot-bottom">
-    <p>© 2026 Or-Web. Tous droits réservés.</p>
+    <p>© 2026 OR-Web. Tous droits réservés.</p>
     <nav class="foot-legal" aria-label="Informations légales">
       <a href="/mentions-legales">Mentions légales</a>
       <a href="/politique-de-confidentialite">Politique de confidentialité</a>
     </nav>
-    <p>Site réalisé par Or-Web — Agence Web Premium</p>
+    <p>Site réalisé par OR-Web — Agence Web Premium</p>
   </div>
 </footer>`;
 

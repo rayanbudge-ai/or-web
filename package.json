@@ -1,7 +1,7 @@
 {
   "name": "or-web-backend",
   "version": "1.0.0",
-  "description": "Back-end premium pour Or-Web",
+  "description": "Back-end premium pour OR-Web",
   "main": "server.js",
   "scripts": {
     "build": "node build.js && node build-pages.js",
