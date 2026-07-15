@@ -19,39 +19,39 @@
     {
       id: 'iznogrillz',
       service: 'site-web',
-      subType: 'ecommerce',
-      subTypeLabel: 'E-commerce',
+      subType: 'vitrine',
+      subTypeLabel: 'Vitrine',
       title: 'IznoGrillz',
-      tags: ['E-commerce', 'Hero vidéo', 'Panier', 'JS Vanilla'],
-      desc: "Bijouterie grillz sur mesure — hero vidéo plein écran, catalogue filtrable et panier persisté. Univers cyberpunk brutaliste.",
-      accent: '#C9A84C',
-      year: '2025',
-      demo: true,
-      previewUrl: 'projets/iznogrillz/index.html',
-      siteUrl: 'iznogrillz.com',
+      tags: ['Site en ligne', 'Configurateur', 'Hero vidéo', 'JS Vanilla'],
+      desc: "Atelier de grillz sur mesure à Bordeaux — univers néo-gothique glitch, galerie « grimoire » et configurateur de set avec estimation. En ligne sur iznogrillz.fr.",
+      accent: '#35E0D6',
+      year: '2026',
+      img: 'projets/img/iznogrillz/hero.jpg',
+      siteUrl: 'iznogrillz.fr',
+      badge: 'en ligne',
       url: 'projets/iznogrillz.html',
       detail: {
-        metaTitle: 'IznoGrillz — E-commerce sur mesure | Portfolio OR-Web',
-        metaDesc: "Étude de cas IznoGrillz : e-commerce grillz custom or et argent, hero vidéo et panier intégré. Réalisé en HTML/CSS/JS vanilla par OR-Web.",
-        label: 'E-commerce',
+        metaTitle: 'IznoGrillz — Vitrine & configurateur de grillz | Portfolio OR-Web',
+        metaDesc: "Étude de cas IznoGrillz : vitrine néo-gothique et configurateur de grillz sur mesure, en ligne sur iznogrillz.fr. Réalisé en HTML/CSS/JS vanilla par OR-Web.",
+        label: 'Vitrine',
         heroTitle: 'IZNO<span class="gold">GRILLZ</span>',
-        heroDesc: "Site vitrine & e-commerce pour un artisan bijoutier spécialisé dans la fabrication de grillz custom sur mesure — or 18k, argent 925, diamants VVS. Design Cyberpunk / Brutaliste avec effets glitch, hero vidéo plein écran et catalogue avec panier intégré.",
+        heroDesc: "Site vitrine et configurateur pour un atelier bordelais de grillz sur mesure — pièces uniques en cobalt-chrome forgées sur empreinte. Univers néo-gothique glitch (typographies blackletter, néons cyan et magenta), écran d'intro « invocation », galerie « grimoire » et configurateur de set en 3 étapes. Le site est en ligne sur iznogrillz.fr.",
         client: 'IznoGrillz',
-        category: 'E-commerce & Vitrine',
+        category: 'Vitrine & Configurateur',
         duration: '4 semaines',
-        demoPath: 'iznogrillz/index.html',
-        heroMockupClass: 'proj-visual',
+        liveUrl: 'https://www.iznogrillz.fr/',
+        heroImg: 'projets/img/iznogrillz/hero.jpg',
         screens: [
-          { addr: 'iznogrillz.com/#shop',    src: 'iznogrillz/index.html#shop',    title: 'IznoGrillz — Boutique',   featured: true },
-          { addr: 'iznogrillz.com/#process', src: 'iznogrillz/index.html#process', title: 'IznoGrillz — Processus' },
-          { addr: 'iznogrillz.com/#contact', src: 'iznogrillz/index.html#contact', title: 'IznoGrillz — Contact' },
+          { addr: 'iznogrillz.fr/realisations', img: 'projets/img/iznogrillz/galerie-grimoire.jpg', title: 'IznoGrillz — Le grimoire', featured: true },
+          { addr: 'iznogrillz.fr/contact',      img: 'projets/img/iznogrillz/configurateur.jpg',    title: 'IznoGrillz — Configurateur' },
+          { addr: 'iznogrillz.fr/realisations', img: 'projets/img/iznogrillz/pacte.jpg',            title: 'IznoGrillz — Prise de rendez-vous' },
         ],
         paragraphs: [
-          "IznoGrillz est un artisan bijoutier proposant des grillz entièrement sur mesure — pièces forgées à la main en or 18 carats, argent 925 ou sertis de diamants VVS. Le défi était de créer une identité digitale à la hauteur de l'univers underground et haut de gamme de la marque.",
-          'Le design adopte une direction artistique <strong style="color:var(--white)">Cyberpunk / Brutaliste</strong> : fond noir profond, accents néon vert acide et violet électrique, effets glitch sur les titres, scanlines et bruit numérique en arrière-plan. L\'expérience est immersive sans jamais sacrifier la lisibilité.',
-          "Le site intègre un hero vidéo plein écran, une section processus en 4 étapes, un catalogue produits avec système de panier persisté en localStorage, et un formulaire de contact. Entièrement responsive, sans framework.",
+          "IznoGrillz est un atelier bordelais qui forge des grillz entièrement sur mesure à partir d'une empreinte dentaire — pièces uniques en cobalt-chrome ou chrome noir, émail fluo, gravure main, pierres serties. Il fallait un site à la hauteur de cet univers underground, qui donne envie de commander une pièce.",
+          'Le design assume une direction artistique <strong style="color:var(--white)">néo-gothique / glitch</strong> : typographies blackletter lumineuses, néons cyan et magenta sur noir profond, curseur personnalisé et écran d\'intro « invocation » avec log de boot. La galerie « Le grimoire » présente les œuvres numérotées, photos et vidéos à l\'appui.',
+          "Cœur du site : un <strong style=\"color:var(--white)\">configurateur en 3 étapes</strong> — sélection des dents sur un schéma dentaire SVG interactif (notation FDI), choix de la matière (cobalt ou chrome), coordonnées puis validation avec estimation. La prise d'empreinte se fait à Bordeaux ou en déplacement. Entièrement responsive, sans framework.",
         ],
-        stack: ['HTML5 Sémantique', 'CSS3 / Keyframes', 'JS Vanilla', 'Canvas API', 'Panier localStorage', 'Effets Glitch', 'Mobile-first', 'SEO optimisé'],
+        stack: ['HTML5 Sémantique', 'CSS3 / Keyframes', 'JS Vanilla', 'Configurateur 3 étapes', 'Schéma dentaire SVG', 'Hero vidéo', 'Effets Glitch', 'Mobile-first'],
       },
     },
     {
@@ -321,10 +321,15 @@
   /* ── TEMPLATE page étude de cas (corps — build-pages assemble le document) ── */
   function renderProjectDetailBody(p) {
     const d = p.detail;
-    const demoTag = p.demo ? ' <span class="demo-tag">Démo</span>' : '';
-    const demoBtn = d.demoPath
-      ? `<a href="${d.demoPath}" target="_blank" rel="noopener" class="btn btn-primary">Voir le site démo →</a>`
+    const demoTag = p.demo ? ' <span class="demo-tag">Démo</span>'
+      : d.liveUrl ? ' <span class="demo-tag">En ligne</span>'
       : '';
+    /* liveUrl (site client en production) prime sur demoPath (maquette locale). */
+    const demoBtn = d.liveUrl
+      ? `<a href="${d.liveUrl}" target="_blank" rel="noopener" class="btn btn-primary">Voir le site en ligne →</a>`
+      : d.demoPath
+        ? `<a href="${d.demoPath}" target="_blank" rel="noopener" class="btn btn-primary">Voir le site démo →</a>`
+        : '';
     const heroWrapClass = d.heroMockupClass
       ? `${d.heroMockupClass} browser-mockup`
       : 'browser-mockup';
