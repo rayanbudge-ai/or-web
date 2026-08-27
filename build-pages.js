@@ -738,12 +738,18 @@ ${ctaBand('Un projet web en tête ?', 'Premier appel gratuit de 30 minutes. Rép
 /* ════════════════════════ PAGES LÉGALES ════════════════════════ */
 function legalIdentityBlock() {
   const rows = [
-    LEGAL.legalForm && `<p><strong>Raison sociale :</strong> ${LEGAL.legalForm}</p>`,
-    `<p><strong>Dénomination :</strong> ${LEGAL.siteName} — ${LEGAL.tagline}</p>`,
-    `<p><strong>Siège :</strong> ${LEGAL.address}</p>`,
-    LEGAL.siret && `<p><strong>SIRET :</strong> ${LEGAL.siret}</p>`,
+    `<p><strong>Éditeur :</strong> ${LEGAL.legalName}</p>`,
+    LEGAL.legalForm && `<p><strong>Forme juridique :</strong> ${LEGAL.legalForm}</p>`,
+    `<p><strong>Nom commercial :</strong> ${LEGAL.siteName} — ${LEGAL.tagline}</p>`,
+    `<p><strong>Adresse :</strong> ${LEGAL.address}</p>`,
+    LEGAL.siren && `<p><strong>SIREN :</strong> ${LEGAL.siren}</p>`,
+    LEGAL.siret && `<p><strong>SIRET (siège) :</strong> ${LEGAL.siret}</p>`,
     LEGAL.rcs && `<p><strong>RCS :</strong> ${LEGAL.rcs}</p>`,
-    LEGAL.tva && `<p><strong>N° TVA intracommunautaire :</strong> ${LEGAL.tva}</p>`,
+    /* Assujetti → n° intracommunautaire ; franchise en base → mention 293 B.
+       Jamais les deux : afficher un n° de TVA en franchise induit le client en erreur. */
+    (LEGAL.tva
+      ? `<p><strong>N° TVA intracommunautaire :</strong> ${LEGAL.tva}</p>`
+      : LEGAL.tvaMention && `<p><strong>TVA :</strong> ${LEGAL.tvaMention}</p>`),
     LEGAL.capital && `<p><strong>Capital social :</strong> ${LEGAL.capital}</p>`,
     `<p><strong>Email :</strong> <a href="mailto:${LEGAL.email}">${LEGAL.email}</a></p>`,
     `<p><strong>Téléphone :</strong> <a href="tel:${LEGAL.phone.replace(/\s/g, '')}">${LEGAL.phone}</a></p>`,

@@ -85,5 +85,9 @@ Le champ `website` est un honeypot (doit rester vide). `privacy_consent` est obl
 
 ## Mentions légales
 
-Compléter `legal-info.js` (SIRET, forme juridique, RCS…) si l'entreprise est immatriculée.
-Les pages légales sont régénérées à chaque `npm run build`.
+`legal-info.js` est la source de vérité (identité de l'éditeur, SIREN/SIRET, régime TVA,
+hébergeur). Les pages légales sont régénérées à chaque `npm run build`.
+
+Régime actuel : EI en franchise en base de TVA, sans RCS (activité libérale). En cas de
+passage à l'assujettissement, renseigner le champ `tva` — la mention 293 B laisse
+automatiquement la place au n° intracommunautaire.
