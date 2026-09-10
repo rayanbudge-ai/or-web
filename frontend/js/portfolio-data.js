@@ -402,7 +402,7 @@
     const screens = d.screens.map(renderScreen).join('');
     /* Sans capture, on omet le bloc entier : un .proj-screens vide laisserait
        une marge de 5rem sans contenu. */
-    const screensBlock = screens ? `\n  <div class="proj-screens">${screens}</div>\n` : '';
+    const screensBlock = screens ? `  <div class="proj-screens">${screens}</div>\n\n` : '';
 
     const heroMedia = p.placeholder
       ? MEDIA_PLACEHOLDER
@@ -452,8 +452,7 @@
     </div>
   </div>
 
-${screensBlock}
-  <div class="proj-body">
+${screensBlock}  <div class="proj-body">
     <div>
       <h2>Le <span class="gold">projet</span></h2>
       ${paragraphs}${note}
