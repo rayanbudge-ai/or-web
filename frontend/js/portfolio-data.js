@@ -167,6 +167,47 @@
     },
 
     {
+      id: 'crm-or-web',
+      service: 'app-web',
+      subType: 'crm',
+      subTypeLabel: 'Application web',
+      title: 'CRM Or-Web',
+      tags: ['FastAPI', 'Next.js 15', 'PostgreSQL', 'Docker'],
+      desc: "Notre outil commercial interne, utilisé tous les jours : chaque prospect a une fiche unique, un historique d'échanges horodaté et des relances qui remontent d'elles-mêmes. Pas une démo.",
+      accent: '#FF4D8D',
+      year: '2026',
+      /* Badge « interne » et non « en ligne » : app.or-web.fr est derrière
+         authentification. Un visiteur ne tomberait que sur un écran de login,
+         d'où l'absence volontaire de lien externe (pas de liveUrl, pas de demo). */
+      badge: 'interne',
+      /* Aucune capture au dépôt : fait rendre un bloc neutre plutôt qu'un cadre vide. */
+      placeholder: true,
+      siteUrl: 'app.or-web.fr',
+      url: 'projets/crm-or-web.html',
+      detail: {
+        metaTitle: 'CRM Or-Web — Notre CRM de prospection interne | Portfolio OR-Web',
+        metaDesc: "Étude de cas CRM Or-Web : notre outil interne de prospection B2B locale. Fiche entreprise unique, pipeline de qualification, journal d'appels et relances programmées. FastAPI, Next.js 15 et PostgreSQL.",
+        label: 'Application web',
+        heroTitle: 'CRM <span class="gold">OR-WEB</span>',
+        heroDesc: "Notre outil commercial, construit pour nous : fiche entreprise unique, pipeline de qualification du premier contact à la signature, journal d'appels horodaté et relances programmées. Application interne, derrière authentification — pas de démo publique.",
+        client: 'OR-Web (interne)',
+        category: 'CRM prospection B2B',
+        /* Pas de champ `duration` : la durée réelle n'est pas connue. Le gabarit
+           omet la ligne plutôt que d'afficher un chiffre inventé. */
+        screens: [],
+        paragraphs: [
+          '<strong style="color:var(--white)">Le problème.</strong> Prospecter en solo, c\'est un tableur qui devient ingérable à 200 lignes. Plus personne ne sait qui a été appelé, quand, ni ce qui a été dit. Les relances passent à la trappe.',
+          '<strong style="color:var(--white)">La réponse.</strong> Un CRM taillé pour un seul usage : la prospection B2B locale. Pas de modules inutiles, pas de configuration à rallonge. Import contrôlé d\'une base de prospects avec dédoublonnage par SIRET, fiche entreprise unique, pipeline visuel du premier contact à la signature, journal d\'appels horodaté, et relances qui remontent d\'elles-mêmes.',
+          '<strong style="color:var(--white)">L\'architecture.</strong> API FastAPI (SQLAlchemy, migrations Alembic) sur PostgreSQL, interface Next.js 15, le tout en monorepo. Déployé sur VPS auto-hébergé via Docker Compose derrière Caddy — base jamais exposée hors du réseau Docker, accès applicatif par clé d\'API.',
+        ],
+        /* Rendu en commentaire HTML dans la page : section à compléter avec un
+           chiffre réel. Ne rien inventer ici. */
+        note: 'Ce qu\'on en retient : À COMPLÉTER avec un chiffre réel (ne pas inventer).',
+        stack: ['FastAPI', 'SQLAlchemy', 'Alembic', 'PostgreSQL', 'Next.js 15', 'Docker Compose', 'Caddy', 'Monorepo'],
+      },
+    },
+
+    {
       id: 'or-web-perf',
       service: 'seo',
       subTypeLabel: 'SEO & Performance',
@@ -198,11 +239,19 @@
   }
 
   /* ── TEMPLATES portfolio (cartes) ── */
+
+  /* Aperçu indisponible : projet sans capture au dépôt (application derrière
+     authentification). Bloc neutre — évite un cadre navigateur vide côté carte
+     et une <iframe src="undefined"> côté étude de cas. */
+  const MEDIA_PLACEHOLDER =
+    '<div class="media-placeholder"><span>Aperçu non public</span></div>';
+
   function projMedia(p) {
     if (p.previewUrl)
       return `<div class="pin-viewport"><iframe src="${p.previewUrl}" loading="lazy" scrolling="no" tabindex="-1" title="Aperçu live — ${p.title}"></iframe></div>`;
     if (p.img)
       return `<img class="pin-img" src="${p.img}" alt="Aperçu — ${p.title}" loading="lazy">`;
+    if (p.placeholder) return MEDIA_PLACEHOLDER;
     return '';
   }
 
@@ -351,10 +400,25 @@
     }
 
     const screens = d.screens.map(renderScreen).join('');
-    const heroMedia = d.heroImg
-      ? `<img src="${assetUrl(d.heroImg)}" alt="Aperçu — ${p.title}" loading="lazy">`
-      : `<iframe src="${assetUrl(d.demoPath)}" title="${p.title}" loading="lazy"></iframe>`;
-    const heroFrameClass = d.heroImg ? ' browser-frame-img' : '';
+    /* Sans capture, on omet le bloc entier : un .proj-screens vide laisserait
+       une marge de 5rem sans contenu. */
+    const screensBlock = screens ? `\n  <div class="proj-screens">${screens}</div>\n` : '';
+
+    const heroMedia = p.placeholder
+      ? MEDIA_PLACEHOLDER
+      : d.heroImg
+        ? `<img src="${assetUrl(d.heroImg)}" alt="Aperçu — ${p.title}" loading="lazy">`
+        : `<iframe src="${assetUrl(d.demoPath)}" title="${p.title}" loading="lazy"></iframe>`;
+    /* height:auto — sans iframe, scaleFrames() (build-pages) ne fixe aucune
+       hauteur : il sort quand le cadre ne contient pas d'iframe. */
+    const heroFrameClass = (d.heroImg || p.placeholder) ? ' browser-frame-img' : '';
+
+    /* Durée absente = non connue : on retire la ligne au lieu d'inventer. */
+    const durationRow = d.duration
+      ? `\n        <div class="proj-meta-item"><span>Durée</span>     <span>${d.duration}</span></div>`
+      : '';
+    /* Section laissée à compléter — visible en commentaire dans le HTML livré. */
+    const note = d.note ? `\n      <!-- ${d.note} -->` : '';
 
     const paragraphs = d.paragraphs.map(para => `<p>${para}</p>`).join('\n      ');
     const stack = d.stack.map(t => `<span class="proj-tag-item">${t}</span>`).join('\n        ');
@@ -374,8 +438,7 @@
       <div class="proj-meta-list">
         <div class="proj-meta-item"><span>Client</span>    <span>${d.client}</span></div>
         <div class="proj-meta-item"><span>Catégorie</span> <span>${d.category}</span></div>
-        <div class="proj-meta-item"><span>Année</span>     <span>${p.year}</span></div>
-        <div class="proj-meta-item"><span>Durée</span>     <span>${d.duration}</span></div>
+        <div class="proj-meta-item"><span>Année</span>     <span>${p.year}</span></div>${durationRow}
       </div>
     </div>
     <div class="${heroWrapClass}">
@@ -389,12 +452,11 @@
     </div>
   </div>
 
-  <div class="proj-screens">${screens}</div>
-
+${screensBlock}
   <div class="proj-body">
     <div>
       <h2>Le <span class="gold">projet</span></h2>
-      ${paragraphs}
+      ${paragraphs}${note}
     </div>
     <div>
       <h2>Stack <span class="gold">technique</span></h2>

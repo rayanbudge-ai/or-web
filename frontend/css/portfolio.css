@@ -311,6 +311,21 @@
 }
 .pin-img { display: block; width: 100%; height: auto; }
 
+/* Aperçu indisponible — projet sans capture au dépôt (app derrière auth).
+   Même fond que .pin-viewport pour que le cadre navigateur reste cohérent ;
+   sert aussi bien dans la carte portfolio que dans le hero de l'étude de cas. */
+.media-placeholder {
+  aspect-ratio: 16 / 9;
+  background: #0d0d12;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: .62rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
 /* Clôture */
 .port-end {
   padding-block: clamp(4rem, 9vw, 8rem);
