@@ -180,8 +180,10 @@
          authentification. Un visiteur ne tomberait que sur un écran de login,
          d'où l'absence volontaire de lien externe (pas de liveUrl, pas de demo). */
       badge: 'interne',
-      /* Aucune capture au dépôt : fait rendre un bloc neutre plutôt qu'un cadre vide. */
-      placeholder: true,
+      /* Maquette anonymisée rendue par scripts/capture-crm.js : l'application
+         réelle est derrière authentification et ne peut pas être capturée.
+         Identités floutées, chiffres illustratifs et cohérents entre eux. */
+      img: 'projets/img/crm-or-web/dashboard.png',
       siteUrl: 'app.or-web.fr',
       url: 'projets/crm-or-web.html',
       detail: {
@@ -192,6 +194,7 @@
         heroDesc: "Notre outil commercial, construit pour nous : fiche entreprise unique, pipeline de qualification du premier contact à la signature, journal d'appels horodaté et relances programmées. Application interne, derrière authentification — pas de démo publique.",
         client: 'OR-Web (interne)',
         category: 'CRM prospection B2B',
+        heroImg: 'projets/img/crm-or-web/dashboard.png',
         /* Pas de champ `duration` : la durée réelle n'est pas connue. Le gabarit
            omet la ligne plutôt que d'afficher un chiffre inventé. */
         screens: [],
@@ -251,8 +254,7 @@
       return `<div class="pin-viewport"><iframe src="${p.previewUrl}" loading="lazy" scrolling="no" tabindex="-1" title="Aperçu live — ${p.title}"></iframe></div>`;
     if (p.img)
       return `<img class="pin-img" src="${p.img}" alt="Aperçu — ${p.title}" loading="lazy">`;
-    if (p.placeholder) return MEDIA_PLACEHOLDER;
-    return '';
+    return MEDIA_PLACEHOLDER;
   }
 
   function renderBadge(p) {
@@ -404,14 +406,14 @@
        une marge de 5rem sans contenu. */
     const screensBlock = screens ? `  <div class="proj-screens">${screens}</div>\n\n` : '';
 
-    const heroMedia = p.placeholder
-      ? MEDIA_PLACEHOLDER
-      : d.heroImg
-        ? `<img src="${assetUrl(d.heroImg)}" alt="Aperçu — ${p.title}" loading="lazy">`
-        : `<iframe src="${assetUrl(d.demoPath)}" title="${p.title}" loading="lazy"></iframe>`;
+    const heroMedia = d.heroImg
+      ? `<img src="${assetUrl(d.heroImg)}" alt="Aperçu — ${p.title}" loading="lazy">`
+      : d.demoPath
+        ? `<iframe src="${assetUrl(d.demoPath)}" title="${p.title}" loading="lazy"></iframe>`
+        : MEDIA_PLACEHOLDER;
     /* height:auto — sans iframe, scaleFrames() (build-pages) ne fixe aucune
        hauteur : il sort quand le cadre ne contient pas d'iframe. */
-    const heroFrameClass = (d.heroImg || p.placeholder) ? ' browser-frame-img' : '';
+    const heroFrameClass = (d.heroImg || !d.demoPath) ? ' browser-frame-img' : '';
 
     /* Durée absente = non connue : on retire la ligne au lieu d'inventer. */
     const durationRow = d.duration

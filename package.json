@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "build": "node build.js && node build-pages.js",
+    "capture:crm": "node scripts/capture-crm.js",
     "capture:voxline": "node scripts/capture-voxline.js",
     "dev": "node build.js --watch",
     "start": "node server.js"
