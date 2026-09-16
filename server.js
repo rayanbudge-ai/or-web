@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const portfolio = require('./frontend/js/portfolio-data');
 require('dotenv').config();
 
@@ -165,6 +166,103 @@ function escapeHtml(value) {
 // Health check (Render : Settings → Health Check Path = /api/health).
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
+/* ──────────────────────────────────────────────────────────────────────────
+   MESURE D'AUDIENCE — relais vers le CRM.
+
+   Le navigateur poste ici (voir frontend/js/mesure.js), ce serveur identifie
+   le visiteur, puis relaie au CRM qui stocke. Ce détour par le serveur est
+   le cœur du dispositif : c'est ici, et nulle part ailleurs, que l'IP et le
+   user-agent existent. Ils servent à calculer un hash, puis disparaissent
+   avec la requête — ils ne sont ni journalisés, ni transmis, ni stockés.
+
+   Le sel change chaque jour, ce qui rend le hash intraçable d'un jour à
+   l'autre : un même navigateur revenu demain sera compté comme un nouveau
+   visiteur. C'est la contrepartie assumée de l'absence de cookie.
+   ────────────────────────────────────────────────────────────────────────── */
+
+const CRM_URL = (process.env.CRM_API_URL || '').replace(/\/+$/, '');
+const CRM_MESURE_KEY = process.env.MESURE_API_KEY || '';
+// Sel du hash visiteur. Sans lui, pas de mesure : un sel généré au démarrage
+// donnerait des identités différentes par instance et remises à zéro à chaque
+// déploiement, donc des visiteurs uniques faux plutôt qu'absents.
+const SEL_MESURE = process.env.SEL_MESURE || '';
+const MESURE_ACTIVE = Boolean(CRM_URL && CRM_MESURE_KEY && SEL_MESURE);
+
+if (!MESURE_ACTIVE) {
+  console.warn(
+    '[mesure] inactive — renseigner CRM_API_URL, MESURE_API_KEY et SEL_MESURE pour l\'activer'
+  );
+}
+
+// HMAC plutôt qu'un sha256 concaténé : la clé reste la clé, et la rotation
+// quotidienne se fait par le message sans jamais avoir à stocker le sel du jour.
+function hashVisiteur(req) {
+  const jour = new Date().toISOString().slice(0, 10); // AAAA-MM-JJ, UTC
+  const ua = req.get('user-agent') || '';
+  return crypto
+    .createHmac('sha256', SEL_MESURE)
+    .update(`${jour}:${req.ip}:${ua}`)
+    .digest('hex');
+}
+
+// Envoi au CRM sans attendre : la réponse au navigateur ne doit pas dépendre
+// de la disponibilité du CRM. Une mesure perdue est un chiffre en moins, pas
+// une page cassée.
+function relayerMesure(corps) {
+  fetch(`${CRM_URL}/mesure/collecte`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Mesure-Key': CRM_MESURE_KEY },
+    body: JSON.stringify(corps),
+    signal: AbortSignal.timeout(4000),
+  })
+    .then((r) => {
+      if (!r.ok) console.warn(`[mesure] CRM a répondu ${r.status}`);
+    })
+    .catch((e) => console.warn('[mesure] relais impossible :', e.message));
+}
+
+// 240 événements / 15 min / IP : large pour une navigation humaine (deux appels
+// par page vue), assez serré pour qu'un script ne puisse pas gonfler les stats.
+const mesureLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 240,
+  standardHeaders: false,
+  legacyHeaders: false,
+  message: { error: 'Trop de requêtes.' },
+});
+
+const TYPES_MESURE = new Set(['page', 'conversion']);
+
+app.post('/api/mesure', mesureLimiter, (req, res) => {
+  // 204 même quand la mesure est inactive ou le corps invalide : le client est
+  // un script de statistiques, il n'a rien à faire d'une erreur, et un 4xx ne
+  // ferait que remplir la console du visiteur.
+  res.status(204).end();
+  if (!MESURE_ACTIVE) return;
+
+  const { evenement_id, type, chemin, titre, referrer_hote, campagne, appareil, duree_ms } =
+    req.body || {};
+
+  if (typeof evenement_id !== 'string' || evenement_id.length < 8 || evenement_id.length > 36) return;
+  if (typeof chemin !== 'string' || !chemin.startsWith('/')) return;
+  if (type !== undefined && !TYPES_MESURE.has(type)) return;
+
+  const borner = (v, max) => (typeof v === 'string' && v ? v.slice(0, max) : null);
+
+  relayerMesure({
+    evenement_id,
+    visiteur_hash: hashVisiteur(req),
+    type: type || 'page',
+    chemin: chemin.slice(0, 255),
+    titre: borner(titre, 255),
+    referrer_hote: borner(referrer_hote, 255),
+    campagne: borner(campagne, 120),
+    appareil: borner(appareil, 20),
+    duree_ms:
+      Number.isFinite(duree_ms) && duree_ms >= 0 ? Math.min(Math.round(duree_ms), 7200000) : null,
+  });
+});
+
 // ── Anti-spam du formulaire de contact ──────────────────────
 // 1) Rate-limit : 5 envois / 15 min / IP (un humain n'en envoie pas plus).
 const contactLimiter = rateLimit({
@@ -239,6 +337,17 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
 
   try {
     await transporter.sendMail(mailOptions);
+    // Conversion comptee ici, et non dans le navigateur : seul ce point du code
+    // sait que le message est reellement parti. Aucun champ du formulaire n'est
+    // transmis a la mesure, seulement le fait qu'une conversion a eu lieu.
+    if (MESURE_ACTIVE) {
+      relayerMesure({
+        evenement_id: crypto.randomUUID(),
+        visiteur_hash: hashVisiteur(req),
+        type: 'conversion',
+        chemin: '/contact',
+      });
+    }
     return res.status(200).json({ success: true, message: 'Message envoyé avec succès !' });
   } catch (error) {
     console.error("Erreur Nodemailer : ", error);

@@ -49,6 +49,37 @@ Il n'y a **pas** de lint, typecheck ni formatter configurés. Pas de TypeScript.
   meta des routes SSR ; les meta par défaut de `frontend/index.html` doivent
   rester alignées avec son entrée `/`.
 
+## Mesure d'audience (suivi sans cookie)
+
+Le site mesure sa fréquentation avec son propre dispositif, sans cookie ni
+stockage local, et relaie les visites au CRM (dépôt séparé) qui les stocke.
+
+- `frontend/js/mesure.js` — script client. **Hors du bundle** `app.min.js` à
+  dessein : les pages générées ne chargent pas le bundle et doivent pourtant
+  être mesurées. La balise est injectée par `MESURE_TAG` dans
+  [build-pages.js](build-pages.js), et en dur dans `index.html` et `404.html`.
+- `POST /api/mesure` dans [server.js](server.js) — **seul endroit du code où
+  l'IP et le user-agent existent**. Ils servent à calculer un HMAC à sel
+  quotidien, puis disparaissent : ni journalisés, ni transmis, ni stockés.
+- Trois variables d'environnement, toutes requises : `CRM_API_URL`,
+  `MESURE_API_KEY`, `SEL_MESURE`. L'une manque → mesure inactive, le site
+  fonctionne normalement et l'avertit au démarrage.
+
+Deux invariants à ne pas casser :
+
+1. **Aucun cookie, aucun `localStorage`, aucun `sessionStorage`.** C'est ce qui
+   fait sortir le site de l'article 82 de la loi Informatique et Libertés,
+   donc de l'obligation de bandeau. Y toucher fait basculer le site dans le
+   régime du consentement préalable, et rend fausse la page
+   politique-de-confidentialité.
+2. **Ni l'IP, ni le user-agent, ni l'URL référente complète ne sortent du
+   serveur.** Le client n'envoie que l'hôte du référent ; le serveur n'envoie
+   qu'un hash. Une URL référente entière peut contenir une requête de
+   recherche, donc une donnée personnelle.
+
+`SEL_MESURE` ne se change pas sans raison : sa rotation remet à zéro
+l'identification et gonfle le compte de visiteurs uniques du jour.
+
 ## Mentions légales
 
 [legal-info.js](legal-info.js) est la source de vérité : identité de l'éditeur,

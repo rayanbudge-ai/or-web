@@ -105,6 +105,12 @@ function footer() {
 </footer>`;
 }
 
+/* ── Mesure d'audience ──
+   Fichier à part, hors du bundle app.min.js : ces pages générées ne chargent
+   pas le bundle, et doivent pourtant être mesurées comme l'accueil. `defer`
+   pour qu'il ne bloque jamais le rendu. */
+const MESURE_TAG = `\n<script src="/js/mesure.js" defer></script>`;
+
 /* ── Mini-script : burger, navbar scroll, scroll-reveal (même pattern que /portfolio) ── */
 const INLINE_JS = `
 <script>
@@ -168,7 +174,7 @@ function head({ title, desc, canonical, jsonld }) {
 function layout(page) {
   return head(page) + navbar() +
     `\n<main id="main-content" tabindex="-1" class="lp">\n${page.body}\n</main>\n` +
-    footer() + INLINE_JS + `\n</body>\n</html>`;
+    footer() + INLINE_JS + MESURE_TAG + `\n</body>\n</html>`;
 }
 
 /* ── Pages études de cas (projets/*.html) — données dans portfolio-data.js ── */
@@ -232,7 +238,7 @@ function projectPageLayout(p) {
     `\n<div class="proj-page" style="padding-top:calc(var(--nav) + 3rem)">\n` +
     portfolio.renderProjectDetailBody(p) +
     `\n</div>\n` +
-    footer() + PROJ_IFRAME_JS + `\n</body>\n</html>`;
+    footer() + PROJ_IFRAME_JS + MESURE_TAG + `\n</body>\n</html>`;
 }
 
 function writeProjectPages() {
@@ -833,14 +839,19 @@ ${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Politique de confidentiali
     <h2>Destinataires</h2>
     <p>Les données sont accessibles uniquement aux personnes habilitées chez OR-Web. Elles ne sont ni vendues ni cédées à des tiers. Les emails transitent par notre prestataire SMTP (OVH) et peuvent transiter par notre hébergeur (Render) dans le cadre technique du service.</p>
     <h2>Cookies et traceurs</h2>
-    <p>Le site vitrine or-web.fr ne dépose pas de cookies publicitaires ou de mesure d'audience tiers à ce jour. Seuls des cookies techniques strictement nécessaires au fonctionnement du site peuvent être utilisés par l'hébergeur.</p>
+    <p><strong>Ce site ne dépose aucun cookie.</strong> Il n'utilise pas non plus le stockage local de votre navigateur, et n'embarque aucun traceur publicitaire ni outil de mesure tiers (Google Analytics, Meta Pixel ou équivalent). C'est la raison pour laquelle aucun bandeau de consentement ne vous est présenté : il n'y a rien à consentir.</p>
+    <h2>Mesure d'audience</h2>
+    <p>Nous mesurons la fréquentation du site avec notre propre outil, hébergé sur nos serveurs. Aucune donnée n'est transmise à un tiers.</p>
+    <p>Cette mesure fonctionne <strong>sans cookie et sans identifiant persistant</strong>. À chaque page consultée, notre serveur calcule une empreinte à partir de votre adresse IP et de votre navigateur, combinée à une clé secrète <strong>renouvelée chaque jour</strong>. Seule cette empreinte est enregistrée : votre adresse IP n'est ni conservée, ni journalisée, ni transmise. Parce que la clé change quotidiennement, l'empreinte ne permet pas de vous suivre d'un jour à l'autre, ni d'un site à l'autre.</p>
+    <p>Les informations enregistrées sont : la page consultée, son titre, le temps passé dessus, le <em>nom de domaine</em> du site depuis lequel vous êtes arrivé (jamais l'adresse complète, qui pourrait contenir une recherche), le nom d'une campagne si vous avez suivi un lien tagué, et une catégorie d'appareil (mobile, tablette, ordinateur). Ces données sont conservées <strong>25 mois</strong>, puis supprimées automatiquement.</p>
+    <p>Si votre navigateur émet un signal de refus de suivi (<em>Do Not Track</em> ou <em>Global Privacy Control</em>), aucune mesure n'est effectuée.</p>
     <h2>Vos droits</h2>
     <p>Vous disposez des droits d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité. Pour les exercer, écrivez à <a href="mailto:${LEGAL.email}">${LEGAL.email}</a> en précisant votre demande et un moyen de vous identifier.</p>
     <p>Vous pouvez également introduire une réclamation auprès de la <a href="https://www.cnil.fr" target="_blank" rel="noopener">CNIL</a>.</p>
     <h2>Sécurité</h2>
     <p>Nous mettons en œuvre des mesures raisonnables (validation des entrées, limitation des envois, chiffrement SMTP) pour protéger vos données contre l'accès non autorisé.</p>
     <h2>Mise à jour</h2>
-    <p>Cette politique peut être modifiée pour refléter l'évolution du site ou de la réglementation. Date de dernière mise à jour : juillet 2026.</p>
+    <p>Cette politique peut être modifiée pour refléter l'évolution du site ou de la réglementation. Date de dernière mise à jour : septembre 2026.</p>
   </div>
 </article>`,
   });

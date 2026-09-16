@@ -405,5 +405,8 @@ const reply = {
 <!-- JS bundle de prod (concat + minify de js/*.js via build.js), chargé en
      defer pour ne plus bloquer le rendu. Sources séparées dans frontend/js/. -->
 <script src="dist/app.min.js" defer></script>
+<!-- Mesure d'audience sans cookie — voir js/mesure.js. Hors bundle à dessein :
+     les pages générées ne chargent pas app.min.js et doivent être mesurées. -->
+<script src="/js/mesure.js" defer></script>
 </body>
 </html>
