@@ -180,33 +180,50 @@ app.get('/api/health', (req, res) => res.json({ ok: true }));
    user-agent existent. Ils servent à calculer un hash, puis disparaissent
    avec la requête — ils ne sont ni journalisés, ni transmis, ni stockés.
 
-   Le sel change chaque jour, ce qui rend le hash intraçable d'un jour à
-   l'autre : un même navigateur revenu demain sera compté comme un nouveau
-   visiteur. C'est la contrepartie assumée de l'absence de cookie.
+   La clé du hash est tirée au hasard chaque jour, gardée en mémoire seulement,
+   et jetée au changement de jour. Une fois jetée, personne — ni nous, ni un
+   accès à la base du CRM — ne peut plus relier un hash stocké à une IP et un
+   user-agent : les hashes des jours passés deviennent anonymes, pas seulement
+   pseudonymes. Une clé fixe (l'ancien SEL_MESURE) ne le permettait pas : qui
+   la détenait pouvait recalculer le hash de n'importe quel couple IP/UA
+   supposé, sur toute la durée de rétention.
+
+   Contreparties assumées :
+   - un même navigateur revenu demain est un nouveau visiteur (pas de cookie) ;
+   - un redémarrage du service (déploiement Render) tire une nouvelle clé : les
+     visiteurs déjà vus ce jour-là sont recomptés une fois. Rare, et l'erreur
+     ne porte que sur les visiteurs uniques d'une journée ;
+   - avec plusieurs instances, chacune aurait sa clé. Le service tourne sur
+     une seule instance ; en ajouter une gonflerait les visiteurs uniques.
    ────────────────────────────────────────────────────────────────────────── */
 
 const CRM_URL = (process.env.CRM_API_URL || '').replace(/\/+$/, '');
 const CRM_MESURE_KEY = process.env.MESURE_API_KEY || '';
-// Sel du hash visiteur. Sans lui, pas de mesure : un sel généré au démarrage
-// donnerait des identités différentes par instance et remises à zéro à chaque
-// déploiement, donc des visiteurs uniques faux plutôt qu'absents.
-const SEL_MESURE = process.env.SEL_MESURE || '';
-const MESURE_ACTIVE = Boolean(CRM_URL && CRM_MESURE_KEY && SEL_MESURE);
+const MESURE_ACTIVE = Boolean(CRM_URL && CRM_MESURE_KEY);
 
 if (!MESURE_ACTIVE) {
   console.warn(
-    '[mesure] inactive — renseigner CRM_API_URL, MESURE_API_KEY et SEL_MESURE pour l\'activer'
+    '[mesure] inactive — renseigner CRM_API_URL et MESURE_API_KEY pour l\'activer'
   );
 }
 
-// HMAC plutôt qu'un sha256 concaténé : la clé reste la clé, et la rotation
-// quotidienne se fait par le message sans jamais avoir à stocker le sel du jour.
-function hashVisiteur(req) {
+// Clé du jour : jamais écrite, jamais journalisée, remplacée (donc perdue) dès
+// que la date UTC change.
+let cleDuJour = { jour: '', cle: null };
+
+function cleHashDuJour() {
   const jour = new Date().toISOString().slice(0, 10); // AAAA-MM-JJ, UTC
+  if (cleDuJour.jour !== jour) {
+    cleDuJour = { jour, cle: crypto.randomBytes(32) };
+  }
+  return cleDuJour.cle;
+}
+
+function hashVisiteur(req) {
   const ua = req.get('user-agent') || '';
   return crypto
-    .createHmac('sha256', SEL_MESURE)
-    .update(`${jour}:${req.ip}:${ua}`)
+    .createHmac('sha256', cleHashDuJour())
+    .update(`${req.ip}:${ua}`)
     .digest('hex');
 }
 

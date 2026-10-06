@@ -102,13 +102,14 @@ stockage local, et relaie les visites au CRM (dépôt séparé) qui les stocke.
   [build-pages.js](build-pages.js) (pages générées, 404 comprise), et en dur
   dans `index.html`.
 - `POST /api/mesure` dans [server.js](server.js) — **seul endroit du code où
-  l'IP et le user-agent existent**. Ils servent à calculer un HMAC à sel
-  quotidien, puis disparaissent : ni journalisés, ni transmis, ni stockés.
-- Trois variables d'environnement, toutes requises : `CRM_API_URL`,
-  `MESURE_API_KEY`, `SEL_MESURE`. L'une manque → mesure inactive, le site
-  fonctionne normalement et l'avertit au démarrage.
+  l'IP et le user-agent existent**. Ils servent à calculer un HMAC sous une
+  clé tirée au hasard chaque jour, gardée en mémoire et jetée au changement de
+  jour, puis disparaissent : ni journalisés, ni transmis, ni stockés.
+- Deux variables d'environnement, toutes deux requises : `CRM_API_URL`,
+  `MESURE_API_KEY`. L'une manque → mesure inactive, le site fonctionne
+  normalement et l'avertit au démarrage.
 
-Deux invariants à ne pas casser :
+Trois invariants à ne pas casser :
 
 1. **Aucun cookie, aucun `localStorage`, aucun `sessionStorage`.** C'est ce qui
    fait sortir le site de l'article 82 de la loi Informatique et Libertés,
@@ -120,8 +121,12 @@ Deux invariants à ne pas casser :
    qu'un hash. Une URL référente entière peut contenir une requête de
    recherche, donc une donnée personnelle.
 
-`SEL_MESURE` ne se change pas sans raison : sa rotation remet à zéro
-l'identification et gonfle le compte de visiteurs uniques du jour.
+3. **La clé du hash ne se persiste pas.** Ni variable d'environnement, ni
+   fichier, ni log. C'est parce qu'elle est perdue chaque jour que les hashes
+   stockés par le CRM cessent d'être rattachables à une IP : une clé fixe en
+   ferait des données pseudonymes, recalculables pendant toute la rétention.
+   Prix à payer : un redémarrage du service recompte une fois les visiteurs du
+   jour, et le service doit rester sur une seule instance.
 
 ## Mentions légales
 

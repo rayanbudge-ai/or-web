@@ -12,7 +12,7 @@
    porter une donnée personnelle), le titre, l'HÔTE du référent (jamais l'URL
    entière, qui peut contenir une requête de recherche), une classe d'appareil
    et une durée. L'identification du visiteur est faite côté serveur, par un
-   hash à sel quotidien — voir /api/mesure dans server.js.
+   hash sous une clé quotidienne jetable — voir /api/mesure dans server.js.
 
    Le fichier n'est volontairement pas dans le bundle app.min.js : les pages
    générées (services, blog, mentions légales) ne le chargent pas, alors
