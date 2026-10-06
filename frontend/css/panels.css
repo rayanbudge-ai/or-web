@@ -81,6 +81,7 @@ html:not(.js) .panel:target .panel-title .ht-in { transform: none; }
   line-height: 1.7;
   margin-bottom: 2rem;
 }
+.pc-main .actions + .actions { margin-top: 1rem; }  /* RDV au-dessus du devis */
 .pc-infos { grid-column: 9 / 13; }
 
 /* ── RESPONSIVE ── */
