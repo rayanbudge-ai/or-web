@@ -14,6 +14,12 @@
    et une durée. L'identification du visiteur est faite côté serveur, par un
    hash sous une clé quotidienne jetable — voir /api/mesure dans server.js.
 
+   Clics sur les appels à l'action : seul le NOM du bouton part, un slug fixé
+   dans le HTML (`data-cta="panneau-contact-tel"`), jamais son texte, sa cible
+   ni rien de ce que le visiteur a saisi. Un lien mailto: porte une adresse,
+   un tel: un numéro : ce sont les nôtres, mais la règle est de n'envoyer que
+   le slug, pour qu'elle reste vraie le jour où un lien en porterait d'autres.
+
    Le fichier n'est volontairement pas dans le bundle app.min.js : les pages
    générées (services, blog, mentions légales) ne le chargent pas, alors
    qu'elles doivent être mesurées comme les autres.
@@ -133,4 +139,46 @@
     if (document.visibilityState === 'hidden') envoyerDuree();
   });
   window.addEventListener('pagehide', envoyerDuree);
+
+  // ── Appels à l'action ──
+  // Même format que le CRM exige (minuscules, chiffres, - et _) : un nom
+  // invalide serait refusé là-bas, autant ne pas l'envoyer.
+  var SLUG_CTA = /^[a-z0-9][a-z0-9_-]{0,59}$/;
+
+  // Nom d'un lien sans `data-cta` explicite. Couvre les pages générées, où
+  // chaque bouton de contact n'a pas été nommé un par un : le chemin de la
+  // page, envoyé avec, suffit à les situer.
+  function nomImplicite(lien) {
+    var href = lien.getAttribute('href') || '';
+    if (href.indexOf('tel:') === 0) return 'telephone';
+    if (href.indexOf('mailto:') === 0) return 'email';
+    if (href === '/contact' || href === '/#contact') return 'lien-contact';
+    return null;
+  }
+
+  document.addEventListener(
+    'click',
+    function (e) {
+      if (!e.target || !e.target.closest) return;
+      var nomme = e.target.closest('[data-cta]');
+      var lien = nomme ? null : e.target.closest('a[href]');
+      var nom = nomme ? nomme.getAttribute('data-cta') : lien ? nomImplicite(lien) : null;
+      if (!nom || !SLUG_CTA.test(nom)) return;
+      // Beacon : un clic sur un lien quitte souvent la page, et un fetch
+      // ordinaire serait annulé par la navigation avant d'être parti.
+      envoyer(
+        {
+          evenement_id: identifiant(),
+          type: 'cta',
+          chemin: location.pathname.slice(0, 255),
+          titre: nom,
+          appareil: appareil(),
+        },
+        true
+      );
+    },
+    // Phase de capture : un gestionnaire de la page qui stopperait la
+    // propagation (ouverture d'un panneau de l'accueil) ne masque pas le clic.
+    true
+  );
 })();

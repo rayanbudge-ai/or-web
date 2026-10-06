@@ -105,6 +105,13 @@ stockage local, et relaie les visites au CRM (dépôt séparé) qui les stocke.
   l'IP et le user-agent existent**. Ils servent à calculer un HMAC sous une
   clé tirée au hasard chaque jour, gardée en mémoire et jetée au changement de
   jour, puis disparaissent : ni journalisés, ni transmis, ni stockés.
+- Types d'événements : `page` et `cta` viennent du navigateur ; `conversion`
+  **seulement** de `/api/contact`, une fois le mail parti (refusée sur
+  `/api/mesure`, sinon n'importe qui gonflerait les contacts). Un `cta` porte
+  un slug fixé dans le HTML (`data-cta="panneau-contact-tel"`) ; à défaut,
+  `mesure.js` nomme `telephone`, `email` ou `lien-contact` les liens tel:,
+  mailto: et vers le contact. Jamais le texte du bouton. DNT/GPC coupe tout,
+  conversion comprise.
 - Deux variables d'environnement, toutes deux requises : `CRM_API_URL`,
   `MESURE_API_KEY`. L'une manque → mesure inactive, le site fonctionne
   normalement et l'avertit au démarrage.

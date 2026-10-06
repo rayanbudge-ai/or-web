@@ -227,6 +227,12 @@ function hashVisiteur(req) {
     .digest('hex');
 }
 
+// Signaux de refus de suivi, tels que le navigateur les envoie en en-tête
+// (pendants de navigator.doNotTrack / globalPrivacyControl côté client).
+function refusDeSuivi(req) {
+  return req.get('dnt') === '1' || req.get('sec-gpc') === '1';
+}
+
 // Envoi au CRM sans attendre : la réponse au navigateur ne doit pas dépendre
 // de la disponibilité du CRM. Une mesure perdue est un chiffre en moins, pas
 // une page cassée.
@@ -253,7 +259,15 @@ const mesureLimiter = rateLimit({
   message: { error: 'Trop de requêtes.' },
 });
 
-const TYPES_MESURE = new Set(['page', 'conversion']);
+// Types qu'un NAVIGATEUR peut envoyer. `conversion` n'en fait pas partie : la
+// seule conversion qui compte est relayée par /api/contact, une fois le mail
+// réellement parti. L'accepter ici laissait n'importe qui gonfler le nombre de
+// contacts d'un simple curl — et c'est le chiffre qui pilote les décisions.
+const TYPES_MESURE = new Set(['page', 'cta']);
+
+// Nom d'un appel à l'action : le même slug que le CRM exige. Tout autre texte
+// est écarté plutôt que tronqué — un champ libre pourrait porter n'importe quoi.
+const SLUG_CTA = /^[a-z0-9][a-z0-9_-]{0,59}$/;
 
 app.post('/api/mesure', mesureLimiter, (req, res) => {
   // 204 même quand la mesure est inactive ou le corps invalide : le client est
@@ -270,6 +284,21 @@ app.post('/api/mesure', mesureLimiter, (req, res) => {
   if (type !== undefined && !TYPES_MESURE.has(type)) return;
 
   const borner = (v, max) => (typeof v === 'string' && v ? v.slice(0, max) : null);
+
+  if (type === 'cta') {
+    if (typeof titre !== 'string' || !SLUG_CTA.test(titre)) return;
+    // Un clic n'a ni référent, ni campagne, ni durée : la session les tient de
+    // sa première page vue, côté CRM.
+    relayerMesure({
+      evenement_id,
+      visiteur_hash: hashVisiteur(req),
+      type: 'cta',
+      chemin: chemin.slice(0, 255),
+      titre,
+      appareil: borner(appareil, 20),
+    });
+    return;
+  }
 
   relayerMesure({
     evenement_id,
@@ -362,7 +391,9 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
     // Conversion comptee ici, et non dans le navigateur : seul ce point du code
     // sait que le message est reellement parti. Aucun champ du formulaire n'est
     // transmis a la mesure, seulement le fait qu'une conversion a eu lieu.
-    if (MESURE_ACTIVE) {
+    // Le refus de suivi est honore ici aussi : mesure.js s'arrete sur DNT/GPC,
+    // et la politique de confidentialite promet qu'alors rien n'est mesure.
+    if (MESURE_ACTIVE && !refusDeSuivi(req)) {
       relayerMesure({
         evenement_id: crypto.randomUUID(),
         visiteur_hash: hashVisiteur(req),
