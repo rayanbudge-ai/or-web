@@ -1,0 +1,400 @@
+/* ===== COMPOSANTS PARTAGÉS =====
+   Dérivés de l'accueil (cartes, lignes des panneaux, bouton du panneau
+   Contact, barre de pied) et réutilisés tels quels par toutes les pages.
+   Survol sobre partout : filet lime en fondu d'opacité (calque superposé,
+   aucune couleur animée), flèche en translation. */
+
+/* ── BOUTONS ── une variante primaire, une secondaire.
+   Markup : <a class="btn btn-primary"><span class="bicon">$</span> Libellé
+   <span class="bicon">→</span></a>. Même rayon que les cartes. */
+.btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  min-height: 48px;
+  padding: .85rem 1.7rem;
+  font-family: var(--sans);
+  font-size: .8rem;
+  font-weight: 500;            /* graisse max de DM Sans (300–500) */
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn::before {                 /* calque de survol, en fondu d'opacité */
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity .35s var(--ease);
+}
+.btn-primary { background: var(--lime); color: var(--black); }
+.btn-primary::before { background: rgb(var(--ink-rgb) / .2); }
+.btn-secondary { background: transparent; color: var(--fg); border-color: var(--line-hover); }
+.btn-secondary::before { border: 1px solid var(--lime); background: var(--lime-veil); }
+.bicon {
+  font-family: var(--mono);
+  font-size: .9em;
+  opacity: .7;
+  transition: transform .35s var(--ease);
+}
+.btn:is(:hover, :focus-visible)::before { opacity: 1; }
+.btn:is(:hover, :focus-visible) .bicon:last-child { transform: translateX(3px); }
+.btn[disabled] { cursor: progress; opacity: .7; }
+
+/* Rangée d'actions (boutons) */
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
+.actions-note {
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .04em;
+  color: var(--muted);
+}
+
+/* Lien texte avec flèche (« Toutes nos offres → ») */
+.link-arrow {
+  position: relative;
+  display: inline-flex;
+  gap: .5rem;
+  font-size: .8rem;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--fg);
+  padding-block: .3rem;
+}
+.link-arrow::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 100%; height: 1px;
+  background: var(--lime);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .35s var(--ease);
+}
+.link-arrow:hover::after,
+a:hover > .link-arrow::after,
+a:focus-visible > .link-arrow::after { transform: scaleX(1); }
+
+/* ── CARTES ── celles de l'accueil : filet fin, rayon, survol = filet et
+   voile lime, numéro plein, flèche qui avance. Le survol ne concerne que les
+   cartes cliquables (a.card). */
+.card {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  padding: clamp(1.1rem, 2vw, 1.6rem);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  color: var(--fg);
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border: 1px solid var(--lime);
+  border-radius: inherit;
+  background: var(--lime-veil);
+  opacity: 0;
+  transition: opacity .35s var(--ease);
+}
+/* Numéro en contour ; le même, plein et lime, en fondu (data-n = le texte) */
+.card-num {
+  position: relative;
+  display: block;
+  width: fit-content;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(2.2rem, min(3.6vw, 6vh), 3.4rem);
+  line-height: .85;
+  letter-spacing: -.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--muted);
+}
+.card-num::after {
+  content: attr(data-n);
+  position: absolute;
+  inset: 0;
+  color: var(--lime);
+  -webkit-text-stroke: 0;
+  opacity: 0;
+  transition: opacity .35s var(--ease);
+}
+/* Numéro mono (étapes) : le format des lignes de panneau */
+.card-idx {
+  display: block;
+  font-family: var(--mono);
+  font-size: .8rem;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+.card-go {
+  font-family: var(--mono);
+  color: var(--lime);
+  transition: transform .35s var(--ease);
+}
+.card-title {
+  font-size: clamp(1.3rem, 2vw, 1.75rem);
+  line-height: 1.05;
+  letter-spacing: -.03em;
+}
+.card-text {
+  font-size: .9rem;
+  line-height: 1.6;
+  color: var(--fg-soft);
+}
+@media (hover: hover) {
+  a.card:hover::before, a.card:hover .card-num::after { opacity: 1; }
+  a.card:hover .card-go { transform: translateX(.3rem); }
+}
+a.card:focus-visible { outline-offset: 4px; }
+a.card:focus-visible::before, a.card:focus-visible .card-num::after { opacity: 1; }
+
+/* Grille de cartes : largeur mini réglable par contexte (--card-min) */
+.card-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--card-min, 17rem)), 1fr));
+  gap: clamp(.75rem, 1.5vw, 1.25rem);
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
+}
+.card-grid > li { display: flex; }
+.card-grid > li > .card { flex: 1; }
+.card > .card-title { margin-top: .9rem; }
+.card > .card-text { margin-top: .5rem; }
+
+/* ── LISTE EN LIGNES ── celle des panneaux Services / Méthode : numéro mono,
+   titre, ligne de description, flèche. Grille 12 colonnes : le numéro
+   s'aligne sur les marginalia (colonnes 1–2). */
+.row-list { list-style: none; }
+.row-item { border-top: 1px solid var(--line-strong); }
+.row-item:last-child { border-bottom: 1px solid var(--line-strong); }
+.row-link {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(1rem, 2vw, 2rem);
+  align-items: baseline;
+  padding: clamp(1rem, 3vh, 1.9rem) 0;
+  color: inherit;
+  text-decoration: none;
+}
+.row-num {
+  grid-column: 1 / 3;
+  font-family: var(--mono);
+  font-size: .8rem;
+  letter-spacing: .08em;
+  color: var(--muted);
+  transition: color .3s var(--ease);
+}
+.row-name {
+  grid-column: 3 / 8;
+  font-size: clamp(1.5rem, min(3.2vw, 5vh), 2.6rem);
+  line-height: 1.05;
+  letter-spacing: -.03em;
+  transition: transform .45s var(--ease);
+}
+.row-text {
+  grid-column: 8 / 12;
+  max-width: 40ch;
+  font-size: .95rem;
+  line-height: 1.6;
+  color: var(--fg-soft);
+}
+.row-go {
+  grid-column: 12 / 13;
+  justify-self: end;
+  font-family: var(--mono);
+  color: var(--lime);
+  transition: transform .35s var(--ease);
+}
+/* Ligne sans flèche (Méthode) : le texte prend la dernière colonne */
+div.row-link .row-text { grid-column: 8 / 13; }
+@media (hover: hover) {
+  a.row-link:hover .row-num  { color: var(--lime); }
+  a.row-link:hover .row-name { transform: translateX(.35rem); }
+  a.row-link:hover .row-go   { transform: translateX(.3rem); }
+}
+a.row-link:focus-visible { outline-offset: -2px; }
+a.row-link:focus-visible .row-num { color: var(--lime); }
+
+/* ── COORDONNÉES / FICHE ── label mono + valeur, séparateurs fins */
+.info-list { list-style: none; }
+.info-row {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--line-strong);
+}
+.info-row:last-child { border-bottom: 1px solid var(--line-strong); }
+.info-val { font-size: 1rem; color: var(--fg); width: fit-content; }
+a.info-val:hover { color: var(--lime); }
+
+/* ── TAGS ── */
+.tags { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem; }
+.tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: .68rem;
+  font-weight: 400;
+  letter-spacing: .08em;
+  line-height: 1.5;
+  padding: .2rem .55rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--fg-soft);
+}
+.tag.is-on { color: var(--lime); border-color: var(--lime-line); }
+
+/* ── FIL D'ARIANE ── dans le conteneur .ed (même gouttière que la page) */
+.breadcrumb {
+  padding-top: 1.4rem;
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .04em;
+  color: var(--muted);
+}
+.breadcrumb a { color: var(--muted); }
+.breadcrumb a:hover { color: var(--lime); }
+.breadcrumb [aria-current] { color: var(--fg-soft); }
+
+/* ── EN-TÊTE DE PAGE ── même grammaire que les panneaux : eyebrow en
+   colonnes 1–2, titre (ligne par ligne) à partir de la colonne 3. */
+.page-head {
+  padding-block: clamp(2.5rem, 8vh, 6rem) clamp(2rem, 5vh, 3.5rem);
+  align-items: start;
+}
+.page-eyebrow { grid-column: 1 / 3; padding-top: .6em; }
+.page-title {
+  grid-column: 3 / 13;
+  font-size: clamp(2.4rem, min(6vw, 11vh), 5.5rem);
+  line-height: .98;
+  letter-spacing: -.04em;
+}
+.page-lead {
+  grid-column: 3 / 10;
+  max-width: 52ch;
+  margin-top: clamp(1.25rem, 3vh, 1.75rem);
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+  line-height: 1.7;
+  color: var(--fg-soft);
+}
+.page-head .actions { grid-column: 3 / 13; margin-top: clamp(1.5rem, 4vh, 2.25rem); }
+
+/* ── SECTION ── marginalia à gauche, corps à partir de la colonne 3 */
+.sec {
+  padding-block: clamp(3rem, 8vh, 5.5rem);
+  border-top: 1px solid var(--line-soft);
+}
+.sec-label { grid-column: 1 / 3; align-self: start; padding-top: .5em; }
+.sec-body { grid-column: 3 / 13; min-width: 0; }
+.sec-title {
+  font-size: clamp(1.8rem, 3.6vw, 3rem);
+  line-height: 1.02;
+  letter-spacing: -.035em;
+  max-width: 22ch;
+}
+.sec-p { margin-top: 1.2rem; max-width: 64ch; line-height: 1.75; }
+.sec-p + .sec-p { margin-top: 1rem; }
+.sec-body > .actions { margin-top: clamp(1.5rem, 4vh, 2rem); }
+
+/* Maillage interne (bas des pages) */
+.link-list { list-style: none; margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: .75rem 1.6rem; }
+.link-list a {
+  font-family: var(--mono);
+  font-size: .78rem;
+  color: var(--fg-soft);
+}
+.link-list a:hover { color: var(--lime); }
+
+/* ── FAQ ── (details/summary, sans JS) : même filet que les lignes */
+.faq { margin-top: clamp(1.6rem, 4vw, 2.4rem); max-width: 860px; }
+.faq-item { border-top: 1px solid var(--line-strong); }
+.faq-item:last-child { border-bottom: 1px solid var(--line-strong); }
+.faq-item summary {
+  position: relative;
+  list-style: none;
+  cursor: pointer;
+  padding: 1.2rem 2.5rem 1.2rem 0;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: -.01em;
+  color: var(--fg);
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: '+';
+  position: absolute;
+  right: .2rem; top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--mono);
+  color: var(--lime);
+  font-size: 1.2rem;
+}
+.faq-item[open] summary::after { content: '−'; }
+.faq-a { padding: 0 0 1.3rem; max-width: 68ch; line-height: 1.7; }
+
+/* ── BARRE DE PIED ── celle de l'accueil, sur toutes les pages : dans le flux
+   en bas des pages internes, fixe sur l'accueil (home.css). */
+.home-bar {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--line-soft);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.home-bar-inner {
+  max-width: var(--container);
+  height: var(--bar);                        /* hauteur fixe = place réservée */
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  font-family: var(--mono);
+  font-size: .68rem;
+  line-height: 1.5;
+  letter-spacing: .06em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.home-bar p { font-size: inherit; line-height: inherit; color: inherit; }
+.hb-legal { display: flex; gap: 1.5rem; }
+.home-bar a { color: var(--muted); transition: color .3s; }
+.home-bar a:hover { color: var(--lime); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .page-eyebrow, .page-title, .page-lead, .page-head .actions,
+  .sec-label, .sec-body { grid-column: 1 / 13; }
+  .page-eyebrow { padding-top: 0; margin-bottom: .75rem; }
+  .sec-label { padding-top: 0; margin-bottom: .75rem; }
+
+  .row-link { grid-template-columns: auto minmax(0, 1fr) auto; row-gap: .5rem; }
+  .row-num  { grid-column: 1; padding-right: 1rem; }
+  .row-name { grid-column: 2; font-size: clamp(1.35rem, 6vw, 2rem); }
+  .row-go   { grid-column: 3; grid-row: 1; }   /* sur la ligne du nom */
+  .row-text, div.row-link .row-text { grid-column: 1 / -1; max-width: 52ch; }
+
+  /* Barre de pied : deux lignes fixes — © + contact, puis mentions */
+  .home-bar-inner {
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: flex-start;
+    gap: .2rem 1rem;
+    font-size: .62rem;
+    letter-spacing: .03em;
+  }
+  .hb-legal { order: 3; flex-basis: 100%; gap: 1rem; }
+}

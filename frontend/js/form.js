@@ -26,15 +26,9 @@ function setFG(field, err) {
   const fg    = document.getElementById('fg-' + field);
   const errEl = document.getElementById('err-' + field);
   if (!fg || !errEl) return;
-  fg.classList.remove('err', 'ok');
-  if (err) {
-    fg.classList.add('err');
-    errEl.textContent    = err;
-    errEl.style.display  = 'flex';
-  } else {
-    fg.classList.add('ok');
-    errEl.style.display  = 'none';
-  }
+  fg.classList.toggle('err', !!err);
+  errEl.textContent = err;
+  errEl.hidden = !err;
 }
 
 function liveVal(field) {
@@ -56,6 +50,8 @@ async function submitForm(e) {
   if (errs.length) return;
 
   const btn = document.getElementById('f-submit');
+  const errBox = document.getElementById('form-error');
+  if (errBox) { errBox.hidden = true; errBox.textContent = ''; }
   btn.disabled  = true;
   btn.innerHTML = '<span class="spinner"></span> Envoi en cours…';
 
@@ -73,7 +69,12 @@ async function submitForm(e) {
       }),
     });
 
-    if (!res.ok) throw new Error();
+    if (!res.ok) {
+      // Le serveur renvoie un message explicite (rate-limit, validation) :
+      // on le relaie tel quel, injecté en textContent plus bas (pas de HTML).
+      const data = await res.json().catch(() => null);
+      throw new Error(data && typeof data.error === 'string' ? data.error : '');
+    }
 
     // Annonce accessible (aria-live) + affichage succès
     const region = document.getElementById('form-status');
@@ -81,18 +82,21 @@ async function submitForm(e) {
 
     document.getElementById('contact-right').innerHTML = `
       <div class="form-success" role="status">
-        <div class="success-icon" aria-hidden="true">✓</div>
-        <h3>Message envoyé !</h3>
-        <p>Merci pour votre message. Nous reviendrons vers vous dans les 24 heures.</p>
-        <button type="button" class="btn btn-outline" onclick="location.reload()">Envoyer un autre message</button>
+        <span class="marginalia">(Message envoyé)</span>
+        <h2 class="card-title">Merci, c'est <em class="kw">bien reçu.</em></h2>
+        <p>Nous reviendrons vers vous dans les 24 heures.</p>
+        <button type="button" class="btn btn-secondary" onclick="location.reload()">Envoyer un autre message <span class="bicon" aria-hidden="true">→</span></button>
       </div>`;
-  } catch {
+  } catch (err) {
     btn.disabled  = false;
-    btn.innerHTML = '<span class="bicon" aria-hidden="true">→</span> Envoyer le message <span class="bicon" aria-hidden="true">_</span>';
+    btn.innerHTML = '<span class="bicon" aria-hidden="true">$</span> Envoyer le message <span class="bicon" aria-hidden="true">→</span>';
 
-    // Annonce erreur accessible
-    const region = document.getElementById('form-status');
-    if (region) region.textContent = 'Une erreur est survenue. Veuillez réessayer ou nous contacter directement.';
-    alert("Une erreur est survenue. Veuillez réessayer ou nous contacter directement.");
+    // Erreur affichée sous le bouton (role=alert → annoncée), avec une voie
+    // de repli directe. textContent : aucun HTML interprété.
+    const msg = (err && err.message) || 'Une erreur est survenue.';
+    if (errBox) {
+      errBox.textContent = `${msg} Réessayez ou écrivez-nous à contact@or-web.fr.`;
+      errBox.hidden = false;
+    }
   }
 }

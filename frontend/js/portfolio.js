@@ -18,10 +18,6 @@ function renderPortfolio() {
   if (!wrap) return;
   if (!wrap.querySelector('.port-catalog')) wrap.innerHTML = renderPortfolioHTML();
   initPortfolioFilters();
-  setTimeout(() => {
-    triggerReveal();
-    scalePinIframes();
-  }, 50);
 }
 renderPortfolio();
 
@@ -37,7 +33,7 @@ function initPortfolioFilters() {
   function activate(serviceId, { updateHash = true } = {}) {
     tabs.forEach(tab => {
       const on = tab.dataset.service === serviceId;
-      tab.classList.toggle('port-tab-on', on);
+      tab.classList.toggle('is-on', on);
       tab.setAttribute('aria-selected', String(on));
     });
     panels.forEach(panel => {
@@ -58,11 +54,6 @@ function initPortfolioFilters() {
       const base = `${location.pathname}${location.search}`;
       history.replaceState(null, '', `${base}#${hash}`);
     }
-
-    setTimeout(() => {
-      triggerReveal();
-      scalePinIframes();
-    }, 30);
   }
 
   tabs.forEach(tab => {
@@ -78,16 +69,3 @@ function initPortfolioFilters() {
     if (PORT_HASHES[h]) activate(h, { updateHash: false });
   });
 }
-
-/* ── SCALING DES IFRAMES LIVE (rendu 1440px mis à l'échelle du conteneur) ── */
-function scalePinIframes() {
-  document.querySelectorAll('.pin-viewport').forEach(vp => {
-    const iframe = vp.querySelector('iframe');
-    if (!iframe) return;
-    const scale = vp.clientWidth / 1440;
-    iframe.style.transform = `scale(${scale})`;
-    vp.style.height = (900 * scale) + 'px';
-  });
-}
-setTimeout(scalePinIframes, 0);
-window.addEventListener('resize', scalePinIframes);

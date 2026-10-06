@@ -1,4 +1,6 @@
 /* ===== BASE ===== */
+/* Toutes les couleurs du site sont ici : aucun hex ni rgb() en dur ailleurs
+   (vérifié par grep). Un seul accent, le lime ; plus de dégradé arc-en-ciel. */
 :root {
   /* ── SURFACES (near-black violacé) ── */
   --black: #0B0A12;
@@ -7,35 +9,78 @@
   --mid:   #3A3645;
 
   /* ── TEXTE ── */
-  --gray:  #8B8699;
+  --gray:  #948FA3;   /* ≥ 4,8:1 sur le fond et son halo */
   --light: #C9C5D6;
   --white: #F4F2FA;
 
-  /* ── ACCENTS FLASHY & JOYEUX ── */
+  /* ── ACCENT UNIQUE ── (--violet ne sert qu'aux teintes de fond) */
   --lime:   #C6FF3D;
-  --pink:   #FF4D8D;
-  --cyan:   #35E5FF;
   --violet: #A06BFF;
-  --accent: var(--lime);
 
-  /* Gradient signature multicolore */
-  --grad: linear-gradient(100deg, var(--lime) 0%, var(--cyan) 38%, var(--violet) 66%, var(--pink) 100%);
+  /* ── FONDS DÉRIVÉS ── */
+  --f3:         #1B1238;            /* unique halo du fond, violet très assourdi */
+  --panel-bg:   #0F0D18;            /* panneaux de l'accueil */
+  --panel-tint: #140E22;
+  --panel-glow: 52 26 104;          /* canal RVB du halo des panneaux */
+  --scrim:      rgb(17 15 27 / .94);  /* header / barre de pied sur contenu défilant */
+  --veil:       #000;               /* assombrissement de l'intro */
+  --lime-rgb:   198 255 61;
 
-  /* ── COMPAT : anciens tokens "gold" repointés sur l'accent lime ── */
-  --gold:      var(--lime);
-  --gold-lt:   #D9FF6E;
-  --gold-dk:   #A6E020;
-  --gold-glow: rgba(198, 255, 61, .25);
+  /* ── ÉTATS DE FORMULAIRE ── */
+  --danger:      #FF6B6B;
+  --danger-soft: #FFB4B4;           /* 10:1 sur --dark */
 
   /* ── FONTS ── */
   --display: 'Bricolage Grotesque', system-ui, sans-serif;
-  --serif:   'Bricolage Grotesque', system-ui, sans-serif; /* compat titres */
   --sans:    'DM Sans', system-ui, sans-serif;
   --mono:    'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
 
-  --ease:   cubic-bezier(.16, 1, .3, 1);
-  --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --ease: cubic-bezier(.16, 1, .3, 1);
   --nav: 72px;
+  --bar: 2.75rem;                   /* hauteur de la barre de pied (.home-bar) */
+
+  /* Rayons : cartes, boutons et champs partagent celui des cartes de l'accueil */
+  --radius: 14px;
+  --radius-sm: 4px;                 /* tags */
+
+  /* ── CONTENEUR UNIQUE ── navbar, sections, pied et .ed partagent la même
+     largeur max et les mêmes gouttières (le logo s'aligne sur les titres). */
+  --container: 1500px;
+  --gutter: clamp(1.5rem, 6vw, 6rem);
+
+  /* ── ENCRE DES FILETS ── canal RVB des traits et voiles (thème sombre unique) */
+  --ink-rgb: 255 255 255;
+
+  /* ── RÔLES SÉMANTIQUES ── */
+  --bg:      var(--black);
+  --fg:      var(--white);
+  --fg-soft: var(--light);
+  --muted:   var(--gray);
+  --focus:   var(--lime);
+
+  /* ── MOUVEMENT ── valeurs uniques du langage d'animation (titres ligne par
+     ligne + contenu en décalé). Lues par js/reveal.js : accueil (panneaux) et
+     pages internes (au scroll) partagent exactement le même rythme. */
+  --rv-title-dur:  550ms;   /* une ligne de titre monte derrière son masque */
+  --rv-title-step: 90ms;    /* décalage entre deux lignes */
+  --rv-item-dur:   400ms;   /* un élément de contenu monte et apparaît */
+  --rv-item-step:  40ms;    /* décalage entre deux éléments */
+  --rv-item-after: 60ms;    /* le contenu part après la 1re ligne du titre */
+  --rv-rise:       1.25rem; /* distance de montée du contenu */
+}
+@media (max-width: 900px) {
+  :root { --bar: 3.25rem; }         /* barre sur 2 lignes */
+}
+
+/* Tokens dérivés (filets et voiles, encre blanche). */
+:root {
+  --line-faint:  rgb(var(--ink-rgb) / .06);
+  --line-soft:   rgb(var(--ink-rgb) / .08);
+  --line:        rgb(var(--ink-rgb) / .1);
+  --line-strong: rgb(var(--ink-rgb) / .13);
+  --line-hover:  rgb(var(--ink-rgb) / .2);
+  --lime-veil:   rgb(var(--lime-rgb) / .035);
+  --lime-line:   rgb(var(--lime-rgb) / .35);
 }
 
 *, *::before, *::after {
@@ -50,17 +95,24 @@ html {
 }
 
 body {
-  background: var(--black);
-  color: var(--white);
+  background: var(--bg);   /* sous le calque de fond ; colore aussi l'overscroll */
+  color: var(--fg);
   font-family: var(--sans);
   font-weight: 300;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  /* clip (et non hidden) : pas de conteneur de défilement, sticky reste actif */
+  overflow-x: clip;
+  /* Pages courtes (404, légal) : la barre de pied reste en bas de l'écran */
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
+main { flex: 1 0 auto; }
 
 a { color: inherit; text-decoration: none; }
 
+/* Titres : Bricolage, casse normale (jamais text-transform), un mot clé .kw */
 h1, h2, h3, h4 {
   font-family: var(--display);
   font-weight: 600;
@@ -71,14 +123,20 @@ h1, h2, h3, h4 {
 h1 { font-size: clamp(2.8rem, 6vw, 6rem); }
 h2 { font-size: clamp(2rem, 4vw, 3.4rem); }
 h3 { font-size: clamp(1.2rem, 2vw, 1.7rem); }
-p  { font-size: clamp(.9rem, 1.1vw, 1rem); color: var(--light); }
+p  { font-size: clamp(.9rem, 1.1vw, 1rem); color: var(--fg-soft); }
+
+/* Mot clé d'un titre : l'accent unique, en aplat. (.hero-em et .panel-em de
+   l'accueil sont la même chose.) */
+.kw, .hero-em, .panel-em { font-style: normal; color: var(--lime); }
 
 /* FOCUS VISIBLE — accessibilité clavier */
 :focus { outline: none; }
 :focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
+/* Cibles de focus programmatique (<main>, dialogues) : pas d'anneau */
+[tabindex="-1"]:focus { outline: none; }
 
 /* SCREEN READER ONLY */
 .sr-only {
@@ -100,10 +158,10 @@ p  { font-size: clamp(.9rem, 1.1vw, 1rem); color: var(--light); }
   left: 1rem;
   z-index: 99999;
   padding: .6rem 1.2rem;
-  background: var(--gold);
+  background: var(--lime);
   color: var(--black);
   font-size: .8rem;
-  font-weight: 600;
+  font-weight: 500;            /* DM Sans n'est livrée qu'en 300–500 : 600 = faux gras */
   letter-spacing: .08em;
   text-transform: uppercase;
   transition: top .2s;
@@ -113,7 +171,7 @@ p  { font-size: clamp(.9rem, 1.1vw, 1rem); color: var(--light); }
 /* SCROLLBAR */
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: var(--dark); }
-::-webkit-scrollbar-thumb { background: var(--gold-dk); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: var(--mid); border-radius: 2px; }
 
 /* NOISE OVERLAY */
 body::after {
@@ -126,124 +184,6 @@ body::after {
   z-index: 9999;
 }
 
-/* REVEAL ANIMATION */
-.reveal {
-  opacity: 0;
-  transform: translateY(36px);
-  transition: opacity .8s var(--ease), transform .8s var(--ease);
-}
-.reveal.visible { opacity: 1; transform: translateY(0); }
-.d1 { transition-delay: .1s; }
-.d2 { transition-delay: .2s; }
-.d3 { transition-delay: .3s; }
-.d4 { transition-delay: .4s; }
-
-/* Reveal latéral — slide depuis la gauche (cascade au scroll) */
-.reveal.from-left { transform: translateX(-70px); }
-.reveal.from-left.visible { transform: translateX(0); }
-
-/* Accessibilité : pas d'animation si l'utilisateur la réduit */
-@media (prefers-reduced-motion: reduce) {
-  .reveal { transition: none; opacity: 1; transform: none; }
-}
-
-/* BUTTONS */
-.btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: .6rem;
-  padding: .85rem 2rem;
-  font-family: var(--sans);
-  font-size: .8rem;
-  font-weight: 500;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  border: none;
-  cursor: pointer;
-  overflow: hidden;
-  transition: all .35s var(--ease);
-  text-decoration: none;
-}
-.btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, .06);
-  transform: translateX(-100%);
-  transition: transform .45s var(--ease);
-}
-.btn:hover::before { transform: translateX(0); }
-.btn-primary {
-  background: var(--lime);
-  color: #0B0A12;
-  font-weight: 600;
-}
-.btn-primary:hover {
-  box-shadow: 0 0 32px rgba(198, 255, 61, .45), 0 10px 30px rgba(0, 0, 0, .4);
-  transform: translateY(-3px);
-}
-.btn-outline {
-  background: transparent;
-  color: var(--white);
-  border: 1px solid rgba(255, 255, 255, .2);
-}
-.btn-outline:hover {
-  border-color: var(--cyan);
-  color: var(--cyan);
-  box-shadow: 0 0 24px rgba(53, 229, 255, .25);
-  transform: translateY(-3px);
-}
-.bicon {
-  font-size: .9em;
-  opacity: .7;
-  font-family: var(--mono);
-  transition: opacity .3s, transform .3s;
-}
-.btn:hover .bicon { opacity: 1; transform: translateX(3px); }
-
-/* SECTION UTILITIES */
-.sec {
-  padding: clamp(5rem, 10vw, 9rem) clamp(1.5rem, 6vw, 6rem);
-  max-width: 1300px;
-  margin: 0 auto;
-}
-.sec-full { padding: clamp(5rem, 10vw, 9rem) clamp(1.5rem, 6vw, 6rem); }
-.sec-label {
-  display: flex;
-  align-items: center;
-  font-size: .7rem;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 1.5rem;
-}
-.gold-line {
-  display: inline-block;
-  width: 3rem;
-  height: 2px;
-  background: var(--grad);
-  border-radius: 2px;
-  margin-right: 1rem;
-}
-/* Mot accentué : texte rempli par le dégradé signature */
-.gold {
-  background: var(--grad);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-.divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--lime), var(--cyan), var(--violet), transparent);
-  opacity: .4;
-}
-
-/* PAGES */
-.page { display: none; min-height: 100dvh; padding-top: var(--nav); }
-.page.active { display: block; animation: pageIn .55s var(--ease) both; }
-@keyframes pageIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* PAGES (routes SSR de index.html : une section .page active à la fois) */
+.page { display: none; padding-top: var(--nav); }
+.page.active { display: block; }

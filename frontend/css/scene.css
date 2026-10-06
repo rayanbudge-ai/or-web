@@ -1,0 +1,51 @@
+/* ===== FOND — une seule surface sombre, continue sur tout le site =====
+
+   Un seul calque fixe (.ambient) : la base sombre et un unique halo violet
+   très assourdi. Plus de palettes par section ni de fondus entre scènes :
+   les anciennes « scènes » (ink → paper → violet → night) animaient des
+   mask-image, propriété peinte (repaint de toute la section à chaque tick
+   de scroll), et passaient du quasi-noir au pastel clair — d'où les bandes
+   floues, les liserés et les saccades. Ici, seul transform bouge : le
+   navigateur ne fait que composer un calque. */
+
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bg);
+}
+/* Halo à décroissance douce (paliers en ease-out jusqu'à 100 %). L'ancien
+   dégradé s'arrêtait net à 70 % : la cassure de pente se lisait comme une
+   bande sombre horizontale juste sous le titre (bande de Mach). */
+.scene-surface {
+  position: absolute;
+  inset: -12vmax;                          /* marge pour la dérive */
+  background: radial-gradient(64vmax 52vmax at 72% 24%,
+    color-mix(in srgb, var(--f3) 85%, transparent) 0%,
+    color-mix(in srgb, var(--f3) 70%, transparent) 16%,
+    color-mix(in srgb, var(--f3) 50%, transparent) 32%,
+    color-mix(in srgb, var(--f3) 30%, transparent) 48%,
+    color-mix(in srgb, var(--f3) 14%, transparent) 64%,
+    color-mix(in srgb, var(--f3) 5%, transparent) 80%,
+    transparent 100%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Accueil (sans scroll) : dérive lente dans le temps, à peine perceptible */
+  body:has(#page-home.active) .scene-surface {
+    animation: surfaceDrift 48s ease-in-out infinite alternate;
+  }
+  /* Autres pages : la surface ne bouge que quand on déroule la page */
+  @supports (animation-timeline: scroll()) {
+    body:not(:has(#page-home.active)) .scene-surface {
+      animation: surfaceDrift linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
+}
+@keyframes surfaceDrift {
+  from { transform: translate3d(-3vmax, 2vmax, 0) scale(1); }
+  to   { transform: translate3d(4vmax, -3vmax, 0) scale(1.06); }
+}

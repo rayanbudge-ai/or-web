@@ -84,7 +84,12 @@ const ROUTE_META = {
 function renderPage(route) {
   const m = ROUTE_META[route] || ROUTE_META['/'];
   const url = 'https://or-web.fr' + (route === '/' ? '/' : route);
-  return BASE_HTML
+  // La section de la route est active dès le HTML : visible (et élément LCP
+  // peint) sans attendre le JS, qui ne faisait que la basculer.
+  const html = route === '/' ? BASE_HTML : BASE_HTML
+    .replace('class="page active" id="page-home"', 'class="page" id="page-home"')
+    .replace(`class="page" id="page-${route.slice(1)}"`, `class="page active" id="page-${route.slice(1)}"`);
+  return html
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${m.title}</title>`)
     .replace(/(<meta name="description" content=")[^"]*(")/, `$1${m.desc}$2`)
     .replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${url}$2`)

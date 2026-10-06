@@ -1,12 +1,15 @@
 /* ──────────────────────────────────────────────────────────────────────────
-   GÉNÉRATEUR DE PAGES STATIQUES (SEO) — services + blog
+   GÉNÉRATEUR DE PAGES STATIQUES (SEO) — services, blog, légal, projets, 404
 
-   Pages d'atterrissage autonomes, générées depuis un layout commun (DRY) :
-   navbar + footer + <head> SEO partagés, contenu par page. Sortie en
-   frontend/services/<slug>/index.html et frontend/blog[/<slug>]/index.html
-   → URLs propres servies par express.static.
+   Pages autonomes générées depuis un layout commun : header, barre de pied
+   et <head> SEO partagés, contenu par page. Toutes les pages sont montées
+   avec les composants de l'accueil (components.css) : en-tête .page-head,
+   sections .sec, cartes .card, lignes .row-list, boutons .btn.
+   Sortie en frontend/<route>/index.html (URLs propres servies par
+   express.static), frontend/projets/<id>.html et frontend/404.html.
 
-   Lancé via `npm run build`. La sortie est gitignorée (artefact de build).
+   Lancé par build.js à chaque build (aussi en --watch) : le CSS est
+   référencé par son nom fingerprinté, toujours celui du dernier build.
    ────────────────────────────────────────────────────────────────────────── */
 const fs = require('fs');
 const path = require('path');
@@ -16,141 +19,52 @@ const portfolio = require('./frontend/js/portfolio-data');
 const FE = path.join(__dirname, 'frontend');
 const SITE = 'https://or-web.fr';
 
-// Bundle CSS fingerprinté (manifest écrit par build.js, qui tourne juste avant
-// dans `npm run build`). Fallback nom stable si pas encore buildé.
+// Bundles fingerprintés (manifest écrit par build.js juste avant).
+// Fallback nom stable si pas encore buildé.
 let CSS_BUNDLE = '/dist/styles.min.css';
+let JS_BUNDLE = '/dist/pages.min.js';
 try {
   const manifest = JSON.parse(fs.readFileSync(path.join(FE, 'dist', 'manifest.json'), 'utf8'));
   if (manifest['styles.min.css']) CSS_BUNDLE = '/dist/' + manifest['styles.min.css'];
+  if (manifest['pages.min.js']) JS_BUNDLE = '/dist/' + manifest['pages.min.js'];
 } catch { /* dev : build.js pas encore lancé */ }
 
-/* ── Navbar statique (liens réels, pas de SPA) ── */
+/* ── Header : le même partout (logo, Portfolio, Contact → panneau /#contact) ── */
 function navbar(active) {
-  const act = (id) => active === id ? ' class="active"' : '';
+  const act = (id) => active === id ? ' class="active" aria-current="page"' : '';
   return `
+<!-- Fond (css/scene.css) : une seule surface sombre, commune à tout le site. -->
+<div class="ambient" aria-hidden="true"><div class="scene-surface"></div></div>
 <a class="skip-link" href="#main-content">Aller au contenu principal</a>
 <nav id="navbar">
   <div class="nav-inner">
     <a class="logo" href="/" aria-label="OR-Web — accueil">
-      <span class="lb">&lt;</span><span>OR</span><span class="lb">-</span><span style="color:var(--gold)">Web</span><span class="lb">/&gt;</span>
+      <span class="lb">&lt;</span>OR<span class="lb">-</span><span class="logo-web">Web<span class="lb">/&gt;</span></span>
     </a>
     <ul class="nav-links" role="list">
-      <li><a href="/"${act('home')}>Accueil</a></li>
-      <li><a href="/services"${act('services')}>Services</a></li>
       <li><a href="/portfolio"${act('portfolio')}>Portfolio</a></li>
-      <li><a href="/contact"${act('contact')}>Contact</a></li>
+      <li><a href="/#contact">Contact</a></li>
     </ul>
-    <a class="nav-cta" href="/contact">
-      <span style="font-family:monospace;opacity:.7" aria-hidden="true">&#123;</span> Démarrer un projet <span style="font-family:monospace;opacity:.7" aria-hidden="true">&#125;</span>
-    </a>
-    <button type="button" class="burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobMenu">
-      <span></span><span></span><span></span>
-    </button>
   </div>
-</nav>
-<nav class="mob-menu" id="mobMenu" aria-label="Menu mobile" aria-hidden="true" inert>
-  <ul role="list">
-    <li><a href="/">Accueil</a></li>
-    <li><a href="/services">Services</a></li>
-    <li><a href="/portfolio">Portfolio</a></li>
-    <li><a href="/contact">Contact</a></li>
-    <li><a class="mob-cta-link" href="/contact">Démarrer un projet →</a></li>
-  </ul>
 </nav>`;
 }
 
-/* ── Footer statique (avec maillage services + blog) ── */
-function footer() {
-  return `
-<footer>
-  <div class="divider"></div>
-  <div class="foot-inner">
-    <div class="foot-brand">
-      <span class="foot-logo"><span class="lb">&lt;</span>OR-Web<span class="lb">/&gt;</span></span>
-      <p>L'excellence numérique,<br>forgée avec précision.</p>
-    </div>
-    <div class="foot-nav">
-      <span class="foot-nt">Navigation</span>
-      <ul>
-        <li><a href="/">Accueil</a></li>
-        <li><a href="/portfolio">Portfolio</a></li>
-        <li><a href="/blog">Blog</a></li>
-        <li><a href="/contact">Contact</a></li>
-      </ul>
-    </div>
-    <div class="foot-nav">
-      <a class="foot-nt" href="/services">Services</a>
-      <ul>
-        <li><a href="/services/creation-site-vitrine-bordeaux">Sites Vitrines</a></li>
-        <li><a href="/services/creation-site-e-commerce-bordeaux">E-Commerce</a></li>
-        <li><a href="/services/developpement-application-web-bordeaux">Applications Web</a></li>
-        <li><a href="/services/optimisation-seo-performance-bordeaux">SEO &amp; Performance</a></li>
-      </ul>
-    </div>
-    <div class="foot-contact">
-      <span class="foot-nt">Contact</span>
-      <a href="mailto:contact@or-web.fr">contact@or-web.fr</a>
-      <a href="tel:+33649951225">+33 6 49 95 12 25</a>
-      <p class="foot-loc">Bordeaux, France</p>
-    </div>
-  </div>
-  <div class="foot-bottom">
-    <p>© 2026 OR-Web. Tous droits réservés.</p>
-    <nav class="foot-legal" aria-label="Informations légales">
-      <a href="/mentions-legales">Mentions légales</a>
-      <a href="/politique-de-confidentialite">Politique de confidentialité</a>
-    </nav>
-    <p>Site réalisé par OR-Web — Agence Web Premium</p>
-  </div>
-</footer>`;
-}
-
-/* ── Mesure d'audience ──
-   Fichier à part, hors du bundle app.min.js : ces pages générées ne chargent
-   pas le bundle, et doivent pourtant être mesurées comme l'accueil. `defer`
-   pour qu'il ne bloque jamais le rendu. */
-const MESURE_TAG = `\n<script src="/js/mesure.js" defer></script>`;
-
-/* ── Mini-script : burger, navbar scroll, scroll-reveal (même pattern que /portfolio) ── */
-const INLINE_JS = `
-<script>
-(function(){
-  var b=document.getElementById('burger'),m=document.getElementById('mobMenu');
-  if(b&&m){b.addEventListener('click',function(){
-    var open=b.classList.toggle('open');m.classList.toggle('open',open);
-    b.setAttribute('aria-expanded',String(open));m.setAttribute('aria-hidden',String(!open));m.inert=!open;
-  });}
-  var n=document.getElementById('navbar');
-  if(n){addEventListener('scroll',function(){n.classList.toggle('scrolled',scrollY>40);},{passive:true});}
-  function triggerReveal(){
-    var els=document.querySelectorAll('#main-content .reveal:not(.visible)');
-    if(!els.length)return;
-    if(!('IntersectionObserver'in window)){els.forEach(function(el){el.classList.add('visible');});return;}
-    var obs=new IntersectionObserver(function(entries){
-      entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
-    },{threshold:.1,rootMargin:'0px 0px -50px 0px'});
-    els.forEach(function(el){obs.observe(el);});
-  }
-  setTimeout(triggerReveal,200);
+/* ── Barre de pied : copiée de index.html (source unique, celle de l'accueil) ── */
+const HOME_BAR = (() => {
+  const html = fs.readFileSync(path.join(FE, 'index.html'), 'utf8');
+  const m = html.match(/<footer class="home-bar">[\s\S]*?<\/footer>/);
+  if (!m) throw new Error('build-pages : <footer class="home-bar"> introuvable dans index.html');
+  return m[0];
 })();
-</script>`;
 
 /* ── <head> commun (SEO + polices + CSS bundle) ── */
-function head({ title, desc, canonical, jsonld }) {
+function head({ title, desc, canonical, jsonld, noindex }) {
   const ld = (jsonld || []).map(o => `<script type="application/ld+json">${JSON.stringify(o)}</script>`).join('\n  ');
-  return `<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>${title}</title>
-  <meta name="description" content="${desc}"/>
+  const seo = noindex
+    ? `<meta name="robots" content="noindex, follow"/>`
+    : `<meta name="description" content="${desc}"/>
   <meta name="robots" content="index, follow, max-image-preview:large"/>
   <meta name="author" content="OR-Web"/>
-  <meta name="theme-color" content="#0B0A12"/>
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
-  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
   <link rel="canonical" href="${canonical}"/>
   <meta property="og:type" content="website"/>
   <meta property="og:site_name" content="OR-Web"/>
@@ -162,130 +76,82 @@ function head({ title, desc, canonical, jsonld }) {
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:title" content="${title}"/>
   <meta name="twitter:description" content="${desc}"/>
-  <meta name="twitter:image" content="${SITE}/og-image.jpg"/>
-  <link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin/>
-  <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin/>
-  <link rel="stylesheet" href="${CSS_BUNDLE}"/>
-  ${ld}
-</head>
-<body>`;
-}
-
-function layout(page) {
-  return head(page) + navbar() +
-    `\n<main id="main-content" tabindex="-1" class="lp">\n${page.body}\n</main>\n` +
-    footer() + INLINE_JS + MESURE_TAG + `\n</body>\n</html>`;
-}
-
-/* ── Pages études de cas (projets/*.html) — données dans portfolio-data.js ── */
-const PROJ_IFRAME_JS = `
-<script>
-(function(){
-  var n=document.getElementById('navbar');
-  if(n){addEventListener('scroll',function(){n.classList.toggle('scrolled',scrollY>40);},{passive:true});}
-  var b=document.getElementById('burger'),m=document.getElementById('mobMenu');
-  if(b&&m){b.addEventListener('click',function(){
-    var open=b.classList.toggle('open');m.classList.toggle('open',open);
-    b.setAttribute('aria-expanded',String(open));m.setAttribute('aria-hidden',String(!open));m.inert=!open;
-  });}
-  function scaleFrames(){
-    document.querySelectorAll('.browser-frame').forEach(function(frame){
-      var iframe=frame.querySelector('iframe');if(!iframe)return;
-      var scale=frame.offsetWidth/1440;
-      iframe.style.transform='scale('+scale+')';
-      frame.style.height=Math.round(900*scale)+'px';
-    });
-  }
-  scaleFrames();
-  addEventListener('resize',scaleFrames);
-})();
-</script>`;
-
-function projectHead(p) {
-  const d = p.detail;
-  const canonical = `${SITE}/projets/${p.id}.html`;
+  <meta name="twitter:image" content="${SITE}/og-image.jpg"/>`;
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>${d.metaTitle}</title>
-  <meta name="description" content="${d.metaDesc}"/>
-  <meta name="robots" content="index, follow, max-image-preview:large"/>
+  <title>${title}</title>
+  ${seo}
+  <meta name="theme-color" content="#0B0A12"/>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
-  <link rel="canonical" href="${canonical}"/>
-  <meta property="og:type" content="website"/>
-  <meta property="og:site_name" content="OR-Web"/>
-  <meta property="og:locale" content="fr_FR"/>
-  <meta property="og:url" content="${canonical}"/>
-  <meta property="og:title" content="${d.metaTitle}"/>
-  <meta property="og:description" content="${d.metaDesc}"/>
-  <meta property="og:image" content="${SITE}/og-image.jpg"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="${d.metaTitle}"/>
-  <meta name="twitter:description" content="${d.metaDesc}"/>
-  <meta name="twitter:image" content="${SITE}/og-image.jpg"/>
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
   <link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin/>
   <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin/>
   <link rel="stylesheet" href="${CSS_BUNDLE}"/>
-  <link rel="stylesheet" href="/projets/proj-shared.css"/>
+  <script src="${JS_BUNDLE}" defer></script>
+  ${ld}
 </head>
 <body>`;
 }
 
-function projectPageLayout(p) {
-  return projectHead(p) + navbar('portfolio') +
-    `\n<div class="proj-page" style="padding-top:calc(var(--nav) + 3rem)">\n` +
-    portfolio.renderProjectDetailBody(p) +
-    `\n</div>\n` +
-    footer() + PROJ_IFRAME_JS + MESURE_TAG + `\n</body>\n</html>`;
-}
+/* ── Mesure d'audience ──
+   Fichier à part, hors des bundles : chargé par toutes les pages générées,
+   404 comprise (une 404 fréquente signale un lien mort à corriger), comme
+   par l'accueil. `defer` pour qu'il ne bloque jamais le rendu. */
+const MESURE_TAG = `\n<script src="/js/mesure.js" defer></script>`;
 
-function writeProjectPages() {
-  const outDir = path.join(FE, 'projets');
-  const items = portfolio.getDetailProjects();
-  items.forEach(p => {
-    fs.writeFileSync(path.join(outDir, `${p.id}.html`), projectPageLayout(p));
-  });
-  console.log(`Projets OK → ${items.length} études de cas (${items.map(p => p.id + '.html').join(', ')})`);
+function layout(page) {
+  return head(page) + navbar(page.nav) +
+    `\n<main id="main-content" tabindex="-1" class="lp">\n${page.body}\n</main>\n\n` +
+    HOME_BAR + MESURE_TAG + `\n</body>\n</html>\n`;
 }
 
 /* ── Briques de contenu réutilisables ── */
-function revealStagger(i, max = 3) {
-  if (i === 0) return 'reveal from-left';
-  return `reveal from-left d${Math.min(i, max)}`;
+
+/* Titre en lignes masquées (.ht-line > .ht-in) : « | » sépare les lignes.
+   Le mot clé est balisé <em class="kw"> dans le texte. */
+function lines(spec) {
+  return spec.split('|').map(l => `<span class="ht-line"><span class="ht-in">${l.trim()}</span></span>`).join(' ');
 }
 
-/* En-tête éditorial — même pattern que la page Réalisations (port-head) */
-function pageHero(eyebrow, titleHtml, lead, actions = '') {
-  const actionsBlock = actions
-    ? `<div class="lp-actions reveal d2">${actions}</div>`
-    : '';
+/* En-tête de page — même grammaire que les panneaux de l'accueil.
+   Animé en CSS au premier rendu (css/reveal.css), sans attendre le JS. */
+function pageHero(eyebrow, titleSpec, lead, actions = '') {
   return `
-<header class="port-head ed">
-  <span class="port-eyebrow marginalia" aria-hidden="true">${eyebrow}</span>
-  <h1 class="port-h1 reveal">${titleHtml}</h1>
-  <p class="port-lead reveal d1">${lead}</p>
-  ${actionsBlock}
+<header class="page-head ed ed-grid">
+  <span class="page-eyebrow marginalia" aria-hidden="true">${eyebrow}</span>
+  <h1 class="page-title">${lines(titleSpec)}</h1>
+  ${lead ? `<p class="page-lead">${lead}</p>` : ''}
+  ${actions ? `<div class="actions">${actions}</div>` : ''}
 </header>`;
 }
 
-const SERVICE_ACTIONS = `
-    <a class="btn btn-primary" href="/contact"><span class="bicon" aria-hidden="true">[</span> Demander un devis <span class="bicon" aria-hidden="true">]</span></a>
-    <a class="hero-link" href="/portfolio">Voir nos réalisations <span aria-hidden="true">→</span></a>`;
+/* Boutons : une primaire, une secondaire (components.css) */
+function btn(label, href, { secondary = false, icon = '$' } = {}) {
+  const lead = secondary ? '' : `<span class="bicon" aria-hidden="true">${icon}</span> `;
+  return `<a class="btn ${secondary ? 'btn-secondary' : 'btn-primary'}" href="${href}">${lead}${label} <span class="bicon" aria-hidden="true">→</span></a>`;
+}
 
-function introSection(eyebrow, h2, paragraphs) {
-  const ps = paragraphs.map((p, i) =>
-    `<p class="lp-p reveal d${Math.min(i + 2, 4)}">${p}</p>`
-  ).join('\n    ');
+/* Section : marginalia en colonnes 1–2, corps à partir de la colonne 3 */
+function section(label, inner, attrs = '') {
   return `
-<section class="lp-section">
-  <div class="ed">
-    <span class="marginalia reveal" aria-hidden="true">(${eyebrow})</span>
-    <h2 class="lp-h2 reveal d1">${h2}</h2>
-    ${ps}
+<section class="sec"${attrs}>
+  <div class="ed ed-grid">
+    <span class="sec-label marginalia" aria-hidden="true">(${label})</span>
+    <div class="sec-body">
+      ${inner}
+    </div>
   </div>
 </section>`;
+}
+
+function introSection(eyebrow, h2, paragraphs, extra = '') {
+  const ps = paragraphs.map(p => `<p class="sec-p">${p}</p>`).join('\n      ');
+  return section(eyebrow, `<h2 class="sec-title">${h2}</h2>
+      ${ps}${extra}`);
 }
 
 function breadcrumb(items) {
@@ -308,30 +174,25 @@ function breadcrumbLD(items) {
 
 // Bande de preuve perf → renvoie vers l'étude de cas du portfolio
 const PROOF_BAND = `
-<div class="proof-band reveal d2">
-  <div class="proof-scores">
-    <div class="proof-score"><b>100</b><span>Perf</span></div>
-    <div class="proof-score"><b>100</b><span>Accessib.</span></div>
-    <div class="proof-score"><b>100</b><span>Bonnes prat.</span></div>
-    <div class="proof-score"><b>100</b><span>SEO</span></div>
-  </div>
-  <p class="proof-text">Notre propre site obtient <strong>100/100</strong> sur les quatre axes Google PageSpeed Insights mobile, en vanilla. <a href="/portfolio">Voir l'étude de cas 77 → 100 →</a></p>
-</div>`;
+      <div class="proof card">
+        <ul class="proof-scores" role="list">
+          <li class="proof-score"><b>100</b><span class="marginalia">Perf</span></li>
+          <li class="proof-score"><b>100</b><span class="marginalia">Accessib.</span></li>
+          <li class="proof-score"><b>100</b><span class="marginalia">Bonnes prat.</span></li>
+          <li class="proof-score"><b>100</b><span class="marginalia">SEO</span></li>
+        </ul>
+        <p class="card-text">Notre propre site obtient <strong>100/100</strong> sur les quatre axes Google PageSpeed Insights mobile, en vanilla. <a href="/blog/de-77-a-100-optimisation-core-web-vitals">Lire l'étude de cas 77 → 100</a></p>
+      </div>`;
 
 function faqSection(faqs) {
   const html = faqs.map(f => `
-    <details>
-      <summary>${f.q}</summary>
-      <div class="faq-a">${f.a}</div>
-    </details>`).join('');
-  return `
-<section class="lp-section">
-  <div class="ed">
-    <span class="marginalia reveal" aria-hidden="true">(FAQ)</span>
-    <h2 class="lp-h2 reveal d1">Questions fréquentes</h2>
-    <div class="faq reveal d2">${html}</div>
-  </div>
-</section>`;
+        <details class="faq-item">
+          <summary>${f.q}</summary>
+          <p class="faq-a">${f.a}</p>
+        </details>`).join('');
+  return section('FAQ', `<h2 class="sec-title">Questions fréquentes</h2>
+      <div class="faq">${html}
+      </div>`);
 }
 function faqLD(faqs) {
   return {
@@ -358,53 +219,80 @@ function serviceLD(name, desc, url) {
   };
 }
 
+/* Bloc CTA de fin de page (le même partout) : titre avec mot clé, un seul
+   bouton, maillage vers les services et le blog. */
 function ctaBand(title, note) {
-  return `
-<section class="lp-cta">
-  <div class="ed">
-    <h2 class="reveal">${title}</h2>
-    <p class="reveal d1">${note}</p>
-    <div class="lp-actions reveal d2">
-      <a class="btn btn-primary" href="/contact"><span class="bicon" aria-hidden="true">$</span> Demander un devis gratuit <span class="bicon" aria-hidden="true">→</span></a>
-    </div>
-    <ul class="lp-links reveal d3" aria-label="Autres services">
-      <li><a href="/services/creation-site-vitrine-bordeaux">Site vitrine</a></li>
-      <li><a href="/services/creation-site-e-commerce-bordeaux">Site e-commerce</a></li>
-      <li><a href="/services/developpement-application-web-bordeaux">Application web</a></li>
-      <li><a href="/services/optimisation-seo-performance-bordeaux">SEO &amp; performance</a></li>
-      <li><a href="/blog">Blog</a></li>
-    </ul>
-  </div>
-</section>`;
+  return section('Contact', `<h2 class="sec-title">${title}</h2>
+      <p class="sec-p">${note}</p>
+      <div class="actions">${btn('Demander un devis gratuit', '/contact')}</div>
+      <ul class="link-list" aria-label="Autres pages">
+        <li><a href="/services">Tous les services</a></li>
+        <li><a href="/services/creation-site-vitrine-bordeaux">Site vitrine</a></li>
+        <li><a href="/services/creation-site-e-commerce-bordeaux">Site e-commerce</a></li>
+        <li><a href="/services/developpement-application-web-bordeaux">Application web</a></li>
+        <li><a href="/services/optimisation-seo-performance-bordeaux">SEO &amp; performance</a></li>
+        <li><a href="/blog">Blog</a></li>
+      </ul>`);
 }
 
+/* Étapes : cartes au numéro mono seul (plus de « 1. » dans le titre) */
 function features(eyebrow, h2, items) {
   const cards = items.map((it, i) => `
-    <li class="feature-card ${revealStagger(i)}">
-      <span class="fc-num">${String(i + 1).padStart(2, '0')}</span>
-      <h3>${it.h}</h3>
-      <p>${it.p}</p>
-    </li>`).join('');
-  return `
-<section class="lp-section">
-  <div class="ed">
-    <span class="marginalia reveal" aria-hidden="true">(${eyebrow})</span>
-    <h2 class="lp-h2 reveal d1">${h2}</h2>
-    <ul class="feature-grid" role="list">${cards}</ul>
-  </div>
-</section>`;
+        <li>
+          <article class="card">
+            <span class="card-idx" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+            <h3 class="card-title">${it.h.replace(/^\d+\.\s*/, '')}</h3>
+            <p class="card-text">${it.p}</p>
+          </article>
+        </li>`).join('');
+  return section(eyebrow, `<h2 class="sec-title">${h2}</h2>
+      <ol class="card-grid" role="list">${cards}
+      </ol>`);
 }
 
-/* ── Liste éditoriale services (même motif que l'accueil) ── */
+/* Fil d'Ariane d'une page service : Accueil / Services / page */
+const svcCrumbs = (name, url) => [{ name: 'Accueil', url: '/' }, { name: 'Services', url: '/services' }, { name, url }];
+
+/* ── Liste des services : les lignes du panneau Services de l'accueil ── */
 function servicesListHTML(items, headingTag = 'h3') {
   return items.map((s, i) => `
-      <li class="svc-item ${revealStagger(i)}">
-        <a class="svc-link" href="${s.url}">
-          <span class="svc-num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
-          <${headingTag} class="svc-name">${s.name}</${headingTag}>
-          <p class="svc-line">${s.short}</p>
+      <li class="row-item">
+        <a class="row-link" href="${s.url}">
+          <span class="row-num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+          <${headingTag} class="row-name">${s.name}</${headingTag}>
+          <p class="row-text">${s.short}</p>
+          <span class="row-go" aria-hidden="true">→</span>
         </a>
       </li>`).join('');
+}
+
+/* ── Pages études de cas (projets/*.html) — données dans portfolio-data.js ── */
+function writeProjectPages() {
+  const outDir = path.join(FE, 'projets');
+  const items = portfolio.getDetailProjects();
+  items.forEach(p => {
+    const d = p.detail;
+    const html = layout({
+      title: d.metaTitle, desc: d.metaDesc, canonical: `${SITE}/projets/${p.id}.html`,
+      nav: 'portfolio',
+      body: portfolio.renderProjectDetailBody(p) +
+        ctaBand('Un projet <em class="kw">similaire ?</em>', "Parlons-en lors d'un premier appel gratuit de 30 minutes."),
+    });
+    fs.writeFileSync(path.join(outDir, `${p.id}.html`), html);
+  });
+  console.log(`Projets OK → ${items.length} études de cas (${items.map(p => p.id + '.html').join(', ')})`);
+}
+
+/* ── 404 : header, fond et barre de pied communs ── */
+function write404() {
+  const html = layout({
+    title: '404 — Page introuvable | OR-Web', noindex: true,
+    body: pageHero('(Erreur 404)', "Cette page|n'existe <em class=\"kw\">pas.</em>",
+      'Le lien est peut-être cassé, ou la page a été déplacée. Repartons du bon pied.',
+      btn("Retour à l'accueil", '/') + '\n    ' + btn('Voir le portfolio', '/portfolio', { secondary: true })),
+  });
+  fs.writeFileSync(path.join(FE, '404.html'), html);
+  console.log('404 OK → frontend/404.html');
 }
 
 /* ════════════════════════ PAGES ════════════════════════ */
@@ -434,12 +322,14 @@ const SERVICES = [
     ],
     body: `
 ${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Services', url }])}
-${pageHero('(Services)', 'Nos <span class="gold">services</span>', "De la vitrine à l'application sur mesure, en passant par l'e-commerce et l'optimisation SEO : tout ce qu'il faut pour une présence web rapide, élégante et qui performe sur Google.")}
-<section class="sec services-ed">
-  <ol class="svc-list ed">${servicesListHTML(SERVICES, 'h2')}
-  </ol>
+${pageHero('(Services)', 'Nos <em class="kw">services</em>', "De la vitrine à l'application sur mesure, en passant par l'e-commerce et l'optimisation SEO : tout ce qu'il faut pour une présence web rapide, élégante et qui performe sur Google.")}
+<section class="sec" aria-label="Nos offres">
+  <div class="ed">
+    <ol class="row-list" role="list">${servicesListHTML(SERVICES, 'h2')}
+    </ol>
+  </div>
 </section>
-${ctaBand('Un projet en tête ?', 'Premier appel gratuit de 30 minutes. Réponse sous 24h.')}`,
+${ctaBand('Un projet <em class="kw">en tête ?</em>', 'Premier appel gratuit de 30 minutes. Réponse sous 24h.')}`,
   });
 }
 
@@ -457,10 +347,10 @@ ${ctaBand('Un projet en tête ?', 'Premier appel gratuit de 30 minutes. Réponse
   pages.push({
     out: 'services/creation-site-vitrine-bordeaux',
     title, desc, canonical: SITE + url,
-    jsonld: [serviceLD('Création de site vitrine', desc, SITE + url), breadcrumbLD([{ name: 'Accueil', url: '/' }, { name: 'Site vitrine', url }]), faqLD(faqs)],
+    jsonld: [serviceLD('Création de site vitrine', desc, SITE + url), breadcrumbLD(svcCrumbs('Site vitrine', url)), faqLD(faqs)],
     body: `
-${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Site vitrine Bordeaux', url }])}
-${pageHero('(Service — Site vitrine)', 'Création de <span class="gold">site vitrine</span> à Bordeaux', 'Un site clair et soigné qui donne envie de vous contacter. Pensé pour votre activité, agréable sur mobile, prêt à vous apporter des demandes.', SERVICE_ACTIONS)}
+${breadcrumb(svcCrumbs('Site vitrine', url))}
+${pageHero('(Site vitrine)', 'Création de <em class="kw">site vitrine</em>|à Bordeaux', 'Un site clair et soigné qui donne envie de vous contacter. Pensé pour votre activité, agréable sur mobile, prêt à vous apporter des demandes.', btn('Demander un devis', '/contact'))}
 ${introSection('Pourquoi', 'Votre vitrine en ligne, à la hauteur de votre marque', [
   "Avant de vous appeler ou de passer en boutique, vos futurs clients regardent votre site. En quelques secondes, ils se font une idée : est-ce que cette entreprise inspire confiance ? Est-ce clair ce qu'elle propose ? Si la réponse est floue ou si la page met du temps à s'afficher, ils partent ailleurs.",
   "Nous créons un site qui vous ressemble vraiment — pas un modèle recyclé vu chez dix concurrents. Des pages lisibles sur mobile, un parcours simple pour vous contacter, et une base solide pour durer dans le temps sans mauvaises surprises.",
@@ -474,7 +364,7 @@ ${features('Comment ça se passe', 'Du premier échange à la mise en ligne', [
   { h: '6. On reste disponibles', p: 'Premiers conseils après le lancement et réponses à vos questions. Vous n\'êtes pas livré seul face à votre nouveau site.' },
 ])}
 ${faqSection(faqs)}
-${ctaBand('Prêt à lancer votre site vitrine ?', 'Premier appel gratuit de 30 minutes. Réponse sous 24h.')}`,
+${ctaBand('Prêt à lancer votre <em class="kw">site vitrine ?</em>', 'Premier appel gratuit de 30 minutes. Réponse sous 24h.')}`,
   });
 }
 
@@ -492,10 +382,10 @@ ${ctaBand('Prêt à lancer votre site vitrine ?', 'Premier appel gratuit de 30 m
   pages.push({
     out: 'services/creation-site-e-commerce-bordeaux',
     title, desc, canonical: SITE + url,
-    jsonld: [serviceLD('Création de site e-commerce', desc, SITE + url), breadcrumbLD([{ name: 'Accueil', url: '/' }, { name: 'Site e-commerce', url }]), faqLD(faqs)],
+    jsonld: [serviceLD('Création de site e-commerce', desc, SITE + url), breadcrumbLD(svcCrumbs('Site e-commerce', url)), faqLD(faqs)],
     body: `
-${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Site e-commerce Bordeaux', url }])}
-${pageHero('(Service — E-commerce)', 'Création de <span class="gold">site e-commerce</span> à Bordeaux', "Une boutique en ligne simple à parcourir, rassurante pour payer, et facile à gérer au quotidien — pour vendre même quand vous n'êtes pas devant l'écran.", SERVICE_ACTIONS)}
+${breadcrumb(svcCrumbs('Site e-commerce', url))}
+${pageHero('(E-commerce)', 'Création de <em class="kw">site e-commerce</em>|à Bordeaux', "Une boutique en ligne simple à parcourir, rassurante pour payer, et facile à gérer au quotidien — pour vendre même quand vous n'êtes pas devant l'écran.", btn('Demander un devis', '/contact'))}
 ${introSection('Pourquoi', 'Une boutique en ligne conçue pour convertir', [
   "Un client qui hésite, qui ne trouve pas le produit ou qui abandonne au moment de payer, c'est une vente perdue. Sur mobile, la moindre friction suffit : formulaire compliqué, page lente, bouton mal visible.",
   "Nous construisons une boutique claire : fiches produits soignées, panier simple, paiement rassurant. Vous gardez la main sur votre catalogue au quotidien, et votre boutique reste ouverte — même quand vous êtes en rendez-vous ou en week-end.",
@@ -509,7 +399,7 @@ ${features('Comment ça se passe', 'De l\'idée à votre première vente en lign
   { h: '6. On ouvre et on suit', p: 'Mise en ligne, premiers contrôles et conseils pour attirer vos premiers acheteurs. La boutique reste rapide et confortable sur téléphone.' },
 ])}
 ${faqSection(faqs)}
-${ctaBand('Prêt à vendre en ligne ?', 'Premier appel gratuit de 30 minutes. Réponse sous 24h.')}`,
+${ctaBand('Prêt à vendre <em class="kw">en ligne ?</em>', 'Premier appel gratuit de 30 minutes. Réponse sous 24h.')}`,
   });
 }
 
@@ -527,19 +417,14 @@ ${ctaBand('Prêt à vendre en ligne ?', 'Premier appel gratuit de 30 minutes. R�
   pages.push({
     out: 'services/optimisation-seo-performance-bordeaux',
     title, desc, canonical: SITE + url,
-    jsonld: [serviceLD('Optimisation SEO et performance web', desc, SITE + url), breadcrumbLD([{ name: 'Accueil', url: '/' }, { name: 'SEO & performance', url }]), faqLD(faqs)],
+    jsonld: [serviceLD('Optimisation SEO et performance web', desc, SITE + url), breadcrumbLD(svcCrumbs('SEO & performance', url)), faqLD(faqs)],
     body: `
-${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'SEO & performance Bordeaux', url }])}
-${pageHero('(Service — SEO & Performance)', '<span class="gold">SEO &amp; performance</span> web à Bordeaux', 'On rend votre site plus rapide et plus visible sur Google. Audit, corrections concrètes, résultats mesurés — comme sur notre propre site (77 → 100/100 sur mobile).', `
-    <a class="btn btn-primary" href="/contact"><span class="bicon" aria-hidden="true">[</span> Auditer mon site <span class="bicon" aria-hidden="true">]</span></a>
-    <a class="hero-link" href="/portfolio">Voir l'étude de cas <span aria-hidden="true">→</span></a>`)}
+${breadcrumb(svcCrumbs('SEO & performance', url))}
+${pageHero('(SEO & performance)', '<em class="kw">SEO &amp; performance</em>|web à Bordeaux', 'On rend votre site plus rapide et plus visible sur Google. Audit, corrections concrètes, résultats mesurés — comme sur notre propre site (77 → 100/100 sur mobile).', btn('Auditer mon site', '/contact'))}
 ${introSection('Pourquoi', 'Un site lent, c\'est des clients qui partent', [
   "Vous l'avez déjà vécu : une page qui met plusieurs secondes à s'afficher sur le téléphone, on ferme l'onglet. Résultat : moins de contacts, moins de ventes, et Google finit par vous montrer moins souvent aux personnes qui cherchent vos services.",
   "Nous passons votre site au crible, on repère ce qui le freine (images trop lourdes, éléments inutiles, mauvaise organisation…) et on corrige concrètement. La preuve : nous l'avons fait sur notre propre site — de 77 à 100/100 sur mobile, résultat mesurable et vérifiable.",
-])}
-<section class="lp-section" style="border-top:none;padding-top:0">
-  <div class="ed">${PROOF_BAND}</div>
-</section>
+], PROOF_BAND)}
 ${features('Comment ça se passe', 'Notre approche, étape par étape', [
   { h: '1. On teste votre site', p: 'Comme un vrai visiteur — surtout sur téléphone. On note ce qui ralentit, ce qui bloque, ce qui décourage à rester.' },
   { h: '2. On allège et on simplifie', p: 'Images optimisées, chargement rationalisé, pages inutiles supprimées ou allégées. Votre site s\'affiche plus vite.' },
@@ -549,7 +434,7 @@ ${features('Comment ça se passe', 'Notre approche, étape par étape', [
   { h: '6. On vous guide après', p: 'Conseils pour garder un site rapide dans la durée — éviter que les mêmes problèmes ne reviennent.' },
 ])}
 ${faqSection(faqs)}
-${ctaBand('Votre site mérite un meilleur score', 'Audit et premier appel gratuits. Réponse sous 24h.')}`,
+${ctaBand('Votre site mérite un <em class="kw">meilleur score</em>', 'Audit et premier appel gratuits. Réponse sous 24h.')}`,
   });
 }
 
@@ -567,12 +452,10 @@ ${ctaBand('Votre site mérite un meilleur score', 'Audit et premier appel gratui
   pages.push({
     out: 'services/developpement-application-web-bordeaux',
     title, desc, canonical: SITE + url,
-    jsonld: [serviceLD('Développement d\'application web sur mesure', desc, SITE + url), breadcrumbLD([{ name: 'Accueil', url: '/' }, { name: 'Application web', url }]), faqLD(faqs)],
+    jsonld: [serviceLD('Développement d\'application web sur mesure', desc, SITE + url), breadcrumbLD(svcCrumbs('Application web', url)), faqLD(faqs)],
     body: `
-${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Application web Bordeaux', url }])}
-${pageHero('(Service — Application web)', 'Développement d\'<span class="gold">application web</span> à Bordeaux', 'Un outil en ligne sur mesure : suivi de dossiers, espace client, tableau de bord… Pensé pour votre façon de travailler, accessible partout sans installation.', `
-    <a class="btn btn-primary" href="/contact"><span class="bicon" aria-hidden="true">[</span> Discuter de mon projet <span class="bicon" aria-hidden="true">]</span></a>
-    <a class="hero-link" href="/portfolio">Voir nos réalisations <span aria-hidden="true">→</span></a>`)}
+${breadcrumb(svcCrumbs('Application web', url))}
+${pageHero('(Application web)', 'Développement|d\'<em class="kw">application web</em> à Bordeaux', 'Un outil en ligne sur mesure : suivi de dossiers, espace client, tableau de bord… Pensé pour votre façon de travailler, accessible partout sans installation.', btn('Discuter de mon projet', '/contact'))}
 ${introSection('Pourquoi', 'Un outil pensé pour votre métier, pas l\'inverse', [
   "Les logiciels « tout faits » vous obligent souvent à contourner leurs limites : exports manuels, doubles saisies, abonnements qui s'empilent, fonctionnalités dont vous n'avez pas besoin — et celles qui vous manquent vraiment.",
   "Nous concevons un outil qui suit votre façon de travailler : tableau de bord, espace client, suivi de dossiers, devis… Accessible depuis n'importe quel ordinateur ou téléphone, sans rien installer. Il évolue avec vous quand votre activité grandit.",
@@ -586,7 +469,7 @@ ${features('Comment ça se passe', 'Comment nous construisons votre outil', [
   { h: '6. On prépare la suite', p: 'Besoin d\'une nouvelle fonction dans six mois ? On l\'ajoute sur une base solide, sans tout reprendre depuis le début.' },
 ])}
 ${faqSection(faqs)}
-${ctaBand('Un outil métier ou une plateforme en tête ?', 'Premier appel gratuit de 30 minutes. Réponse sous 24h.')}`,
+${ctaBand('Un outil métier ou une <em class="kw">plateforme</em> en tête ?', 'Premier appel gratuit de 30 minutes. Réponse sous 24h.')}`,
   });
 }
 
@@ -596,7 +479,7 @@ const ARTICLES = [
     slug: 'de-77-a-100-optimisation-core-web-vitals',
     url: '/blog/de-77-a-100-optimisation-core-web-vitals',
     title: 'De 77 à 100/100 : comment nous avons optimisé les Core Web Vitals d\'or-web.fr',
-    h1: 'De 77 à 100/100 : optimiser les Core Web Vitals d\'un site, en vanilla',
+    h1: 'De 77 à <em class="kw">100/100</em> :|optimiser les Core Web Vitals|d\'un site, en vanilla',
     cardTitle: 'De 77 à 100/100 : optimiser les Core Web Vitals, en vanilla',
     desc: "Étude de cas technique : comment OR-Web a fait passer son site de 77 à 100/100 sur Google PageSpeed mobile (FCP 3,8→1,1s, LCP 3,8→1,7s), en vanilla.",
     excerpt: "Comment nous avons fait passer or-web.fr d'un score PageSpeed mobile de 77 à un 100/100 parfait — 13 requêtes ramenées à 2, polices auto-hébergées, élément LCP peint immédiatement. La méthode, étape par étape.",
@@ -604,16 +487,16 @@ const ARTICLES = [
     image: SITE + '/img/pagespeed-mobile-avant.png',
     prose: `
     <p>Un bon design ne suffit pas : si une page met quatre secondes à s'afficher sur mobile, Google la déclasse et les visiteurs partent. Voici, étape par étape, comment nous avons fait passer <a href="/">or-web.fr</a> d'un score Google PageSpeed mobile de <strong>77</strong> à un <strong>100/100</strong> parfait — sans framework, en HTML/CSS/JS vanilla.</p>
-    <figure class="ba-compare">
-      <div class="ba-item">
-        <img src="/img/pagespeed-mobile-avant.png" alt="Rapport PageSpeed Insights mobile d'or-web.fr avant optimisation : Performances 77, Accessibilité 89, FCP et LCP à 3,8 s." loading="lazy"/>
-        <figcaption><span class="ba-tag ba-before">Avant</span> 77 en performance · FCP et LCP à 3,8 s</figcaption>
-      </div>
-      <div class="ba-item">
-        <img src="/img/pagespeed-mobile-apres.png" alt="Rapport PageSpeed Insights mobile d'or-web.fr après optimisation : 100/100 en Performances, Accessibilité, Bonnes pratiques et SEO, FCP 1,1 s, LCP 1,7 s, TBT 0 ms, CLS 0." loading="lazy"/>
-        <figcaption><span class="ba-tag ba-after">Après</span> 100/100 · FCP 1,1 s · LCP 1,7 s</figcaption>
-      </div>
-    </figure>
+    <div class="ba-compare">
+      <figure>
+        <img src="/img/pagespeed-mobile-avant.png" width="659" height="538" alt="Rapport PageSpeed Insights mobile d'or-web.fr avant optimisation : Performances 77, Accessibilité 89, FCP et LCP à 3,8 s." loading="lazy"/>
+        <figcaption><span class="tag">Avant</span> 77 en performance · FCP et LCP à 3,8 s</figcaption>
+      </figure>
+      <figure>
+        <img src="/img/pagespeed-mobile-apres.png" width="652" height="543" alt="Rapport PageSpeed Insights mobile d'or-web.fr après optimisation : 100/100 en Performances, Accessibilité, Bonnes pratiques et SEO, FCP 1,1 s, LCP 1,7 s, TBT 0 ms, CLS 0." loading="lazy"/>
+        <figcaption><span class="tag is-on">Après</span> 100/100 · FCP 1,1 s · LCP 1,7 s</figcaption>
+      </figure>
+    </div>
     <h2>Le diagnostic</h2>
     <p>Le rapport était clair : <strong>FCP et LCP à 3,8 s</strong> sur mobile, là où Google considère « bon » en dessous de 1,8 s (FCP) et 2,5 s (LCP). Le serveur répondait vite (TTFB ≈ 0 ms) : le problème venait du <strong>chargement des ressources</strong>.</p>
     <p>La cause principale : <strong>13 requêtes HTTP bloquantes</strong> chargées dès le départ — 7 fichiers CSS et 6 fichiers JavaScript séparés. Chaque fichier était minuscule, mais sur le réseau mobile bridé, c'est le <em>nombre</em> de requêtes qui coûte cher (latence par connexion).</p>
@@ -644,7 +527,7 @@ const ARTICLES = [
     slug: 'site-sur-mesure-ou-wordpress',
     url: '/blog/site-sur-mesure-ou-wordpress',
     title: 'Site sur mesure ou WordPress : que choisir pour votre entreprise ?',
-    h1: 'Site sur mesure ou WordPress : que choisir ?',
+    h1: 'Site sur mesure|ou <em class="kw">WordPress</em> : que choisir ?',
     cardTitle: 'Site sur mesure ou WordPress : que choisir ?',
     desc: "Site sur mesure ou WordPress/template ? Comparatif honnête : performance, SEO, sécurité, coût et évolutivité, pour bien choisir comment construire votre site.",
     excerpt: "WordPress, template ou code sur mesure ? Un comparatif honnête sur la performance, le SEO, la sécurité et l'évolutivité — pour choisir la bonne fondation pour votre site.",
@@ -695,15 +578,10 @@ ARTICLES.forEach(a => {
     ],
     body: `
 ${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Blog', url: '/blog' }, { name: a.tag, url: a.url }])}
-<header class="port-head ed">
-  <span class="port-eyebrow marginalia" aria-hidden="true">${a.tag} · ${a.dateLabel}</span>
-  <h1 class="port-h1 reveal">${a.h1}</h1>
-</header>
-<article class="article ed">
-  <div class="prose reveal d1">${a.prose}
-  </div>
-</article>
-${ctaBand('Un projet web en tête ?', 'Premier appel gratuit de 30 minutes. Réponse sous 24h.')}`,
+${pageHero(`(${a.tag} · ${a.dateLabel})`, a.h1)}
+${section('Article', `<article class="prose">${a.prose}
+      </article>`)}
+${ctaBand('Un projet web <em class="kw">en tête ?</em>', 'Premier appel gratuit de 30 minutes. Réponse sous 24h.')}`,
   });
 });
 
@@ -712,15 +590,15 @@ ${ctaBand('Un projet web en tête ?', 'Premier appel gratuit de 30 minutes. Rép
   const url = '/blog';
   const title = 'Blog — Web, performance & SEO | OR-Web Bordeaux';
   const desc = "Le blog d'OR-Web, agence web à Bordeaux : études de cas, performance web, Core Web Vitals, SEO et bonnes pratiques de développement.";
-  const cards = ARTICLES.map((a, i) => `
-      <li>
-        <a class="blog-card ${revealStagger(i)}" href="${a.url}">
-          <span class="bc-meta">${a.tag} · ${a.dateLabel}</span>
-          <h2>${a.cardTitle}</h2>
-          <p>${a.excerpt}</p>
-          <span class="bc-more">Lire l'article →</span>
-        </a>
-      </li>`).join('');
+  const cards = ARTICLES.map(a => `
+        <li>
+          <a class="card" href="${a.url}">
+            <span class="marginalia">(${a.tag} · ${a.dateLabel})</span>
+            <h2 class="card-title">${a.cardTitle}</h2>
+            <p class="card-text">${a.excerpt}</p>
+            <span class="link-arrow">Lire l'article <span aria-hidden="true">→</span></span>
+          </a>
+        </li>`).join('');
   pages.push({
     out: 'blog',
     title, desc, canonical: SITE + url,
@@ -730,14 +608,10 @@ ${ctaBand('Un projet web en tête ?', 'Premier appel gratuit de 30 minutes. Rép
     ],
     body: `
 ${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Blog', url }])}
-${pageHero('(Blog)', 'Le <span class="gold">blog</span> d\'OR-Web', 'Études de cas, performance web, SEO et coulisses de nos projets. Du concret, mesuré et vérifiable.')}
-<section class="lp-section" style="border-top:none;padding-top:0">
-  <div class="ed">
-    <ul class="blog-list" role="list">${cards}
-    </ul>
-  </div>
-</section>
-${ctaBand('Un projet web en tête ?', 'Premier appel gratuit de 30 minutes. Réponse sous 24h.')}`,
+${pageHero('(Blog)', 'Le <em class="kw">blog</em> d\'OR-Web', 'Études de cas, performance web, SEO et coulisses de nos projets. Du concret, mesuré et vérifiable.')}
+${section('Articles', `<ul class="card-grid" role="list">${cards}
+      </ul>`, ' aria-label="Articles"')}
+${ctaBand('Un projet web <em class="kw">en tête ?</em>', 'Premier appel gratuit de 30 minutes. Réponse sous 24h.')}`,
   });
 }
 
@@ -773,12 +647,8 @@ function legalIdentityBlock() {
     jsonld: [breadcrumbLD([{ name: 'Accueil', url: '/' }, { name: 'Mentions légales', url }])],
     body: `
 ${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Mentions légales', url }])}
-<article class="article ed">
-  <header class="article-head">
-    <span class="article-meta">Légal</span>
-    <h1 class="article-h1">Mentions légales</h1>
-  </header>
-  <div class="prose">
+${pageHero('(Légal)', 'Mentions <em class="kw">légales</em>')}
+${section('Mentions', `<div class="prose">
     <p>Conformément aux dispositions des articles 6-III et 19 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN), les présentes mentions légales s'appliquent au site <a href="/">or-web.fr</a>.</p>
     <h2>Éditeur du site</h2>
     ${legalIdentityBlock()}
@@ -792,8 +662,7 @@ ${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Mentions légales', url }]
     <p>OR-Web s'efforce d'assurer l'exactitude des informations publiées sur ce site. Toutefois, OR-Web ne saurait être tenue responsable des omissions, inexactitudes ou indisponibilités temporaires du service.</p>
     <h2>Contact</h2>
     <p>Pour toute question relative au site ou à son contenu : <a href="mailto:${LEGAL.email}">${LEGAL.email}</a> ou via le <a href="/contact">formulaire de contact</a>.</p>
-  </div>
-</article>`,
+  </div>`)}`,
   });
 }
 
@@ -807,12 +676,8 @@ ${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Mentions légales', url }]
     jsonld: [breadcrumbLD([{ name: 'Accueil', url: '/' }, { name: 'Politique de confidentialité', url }])],
     body: `
 ${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Politique de confidentialité', url }])}
-<article class="article ed">
-  <header class="article-head">
-    <span class="article-meta">Légal — RGPD</span>
-    <h1 class="article-h1">Politique de confidentialité</h1>
-  </header>
-  <div class="prose">
+${pageHero('(Légal — RGPD)', 'Politique de <em class="kw">confidentialité</em>')}
+${section('RGPD', `<div class="prose">
     <p>La présente politique décrit comment <strong>${LEGAL.siteName}</strong> traite les données personnelles collectées via le site <a href="/">or-web.fr</a>, conformément au Règlement (UE) 2016/679 (RGPD) et à la loi Informatique et Libertés.</p>
     <h2>Responsable du traitement</h2>
     ${legalIdentityBlock()}
@@ -852,8 +717,7 @@ ${breadcrumb([{ name: 'Accueil', url: '/' }, { name: 'Politique de confidentiali
     <p>Nous mettons en œuvre des mesures raisonnables (validation des entrées, limitation des envois, chiffrement SMTP) pour protéger vos données contre l'accès non autorisé.</p>
     <h2>Mise à jour</h2>
     <p>Cette politique peut être modifiée pour refléter l'évolution du site ou de la réglementation. Date de dernière mise à jour : septembre 2026.</p>
-  </div>
-</article>`,
+  </div>`)}`,
   });
 }
 
@@ -901,5 +765,6 @@ ${urls.map(u => `  <url>
 
 writePages();
 writeProjectPages();
+write404();
 writeSitemap();
 module.exports = { pages };

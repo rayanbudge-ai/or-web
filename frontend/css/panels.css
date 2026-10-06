@@ -1,0 +1,92 @@
+/* ===== PANNEAUX — Services, Méthode, Contact (étape « panel ») =====
+
+   Ce fichier ne décrit que des états de repos : ouvert (.is-open) ou fermé.
+   Les transitions sont des timelines de js/accueil.js (Web Animations) :
+   clip-path inset() qui part du rectangle de la carte cliquée (coins
+   arrondis compris) et s'étend à l'écran, puis la teinte, le titre ligne par
+   ligne et le contenu en cascade. La fermeture rejoue la timeline à
+   l'envers, jusqu'à la carte.
+
+   Un panneau fermé reste dans le DOM (indexable) : visibility: hidden le
+   sort du rendu, de la tabulation et de l'arbre d'accessibilité. */
+
+.panel {
+  position: fixed;
+  inset: 0;
+  z-index: 900;                              /* sous la navbar (1000) */
+  background: var(--panel-bg);
+  color: var(--fg);
+  visibility: hidden;
+}
+.panel.is-open { visibility: visible; }
+/* Bascule directe : le nouveau panneau passe devant l'ancien */
+.panel.is-front { z-index: 902; }
+.panel.is-back  { z-index: 901; }
+
+/* Teinte propre au panneau (famille violet sombre, jamais claire) : fondue
+   après le reveal, d'où le « changement de fond » une fois l'écran couvert.
+   Calque séparé du défilement pour rester fixe. */
+.panel-tint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(70vmax 56vmax at 16% 88%,
+      rgb(var(--panel-glow) / .75) 0%, rgb(var(--panel-glow) / .55) 18%, rgb(var(--panel-glow) / .34) 36%,
+      rgb(var(--panel-glow) / .17) 54%, rgb(var(--panel-glow) / .06) 72%, transparent 100%),
+    var(--panel-tint);
+}
+.panel-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;              /* le scroll interne ne fuit pas */
+  padding-top: calc(var(--nav) + clamp(1.5rem, 6vh, 4.5rem));
+  padding-bottom: calc(var(--bar, 0px) + clamp(2rem, 6vh, 4rem));
+}
+
+/* Contenu : masqué panneau fermé, en place panneau ouvert */
+.panel .pn { opacity: 0; }
+.panel .panel-title .ht-in { transform: translateY(105%); }
+.panel.is-open :is(.pn, .panel-tint) { opacity: 1; }
+.panel.is-open .panel-title .ht-in { transform: none; }
+
+/* Sans JS : le lien /#services ouvre le panneau par :target */
+html:not(.js) .panel:target { visibility: visible; }
+html:not(.js) .panel:target :is(.pn, .panel-tint) { opacity: 1; }
+html:not(.js) .panel:target .panel-title .ht-in { transform: none; }
+
+/* ── MISE EN PAGE ── même grammaire que le hero : marginalia en colonnes
+   1–2, contenu à partir de la colonne 3. */
+.panel-inner { width: 100%; }
+.panel-head { margin-bottom: clamp(1.75rem, 5vh, 3.5rem); align-items: end; }
+.panel-eyebrow { grid-column: 1 / 3; align-self: start; }
+.panel-title {
+  grid-column: 3 / 13;
+  font-size: clamp(2.2rem, min(5.5vw, 9vh), 4.75rem);
+  line-height: .98;
+  letter-spacing: -.035em;
+}
+
+/* Listes (Services, Méthode) : composant .row-list (components.css) */
+.panel-foot { margin-top: clamp(1.25rem, 4vh, 2.5rem); text-align: right; }
+
+/* ── CONTACT ── */
+.pc-body { row-gap: 2.5rem; align-items: start; }
+.pc-main { grid-column: 3 / 8; }
+.pc-intro {
+  max-width: 40ch;
+  font-size: clamp(1rem, 1.2vw, 1.12rem);
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+.pc-infos { grid-column: 9 / 13; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .panel-eyebrow, .panel-title { grid-column: 1 / 13; }
+  .panel-eyebrow { margin-bottom: .5rem; }
+  .pc-main, .pc-infos { grid-column: 1 / 13; }
+  .panel-foot { text-align: left; }
+}

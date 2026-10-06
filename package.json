@@ -4,9 +4,11 @@
   "description": "Back-end premium pour OR-Web",
   "main": "server.js",
   "scripts": {
-    "build": "node build.js && node build-pages.js",
+    "build": "node build.js",
     "capture:crm": "node scripts/capture-crm.js",
     "capture:voxline": "node scripts/capture-voxline.js",
+    "capture:previews": "node scripts/capture-previews.js",
+    "check": "node scripts/check-pages.js",
     "dev": "node build.js --watch",
     "start": "node server.js"
   },

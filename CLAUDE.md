@@ -18,15 +18,21 @@ Dépôt public.
 
 ## Contrainte forte : stack vanilla
 
-**Aucun framework runtime** (pas de React/Vue/etc.). Front en HTML/CSS/JS
-vanilla. esbuild sert uniquement au build (concat + minify, mode `transform`,
+**Aucun framework runtime** (pas de React/Vue/etc.) ni librairie d'animation.
+Front en HTML/CSS/JS vanilla. esbuild sert uniquement au build (concat + minify, mode `transform`,
 pas de renommage des globales — les handlers inline du HTML en dépendent).
 
 ## Commandes
 
-- `npm run build` — bundles fingerprintés dans `frontend/dist/` + manifest.json,
-  pages services/blog/légal générées, sitemap.xml. **Requis avant `npm start`.**
-- `npm run dev` — rebuild auto des bundles à chaque modif CSS/JS
+- `npm run build` — bundles fingerprintés dans `frontend/dist/` (styles, app,
+  pages) + manifest.json, puis `build-pages.js` : pages services/blog/légal,
+  études de cas, 404.html, sitemap.xml. **Requis avant `npm start`.**
+- `npm run dev` — rebuild auto des bundles ET des pages générées à chaque modif
+  CSS/JS, `index.html` ou `build-pages.js` (les pages pointent toujours vers le
+  CSS du dernier build)
+- `npm run check` — serveur lancé (`BASE=` pour un autre port) : classes HTML
+  absentes du CSS compilé, même feuille sur toutes les pages, aucune couleur en
+  dur hors `:root`. Doit sortir vide.
 - `npm start` — serveur sur :3000 (PORT surchargeable)
 
 Il n'y a **pas** de lint, typecheck ni formatter configurés. Pas de TypeScript.
@@ -35,16 +41,52 @@ Il n'y a **pas** de lint, typecheck ni formatter configurés. Pas de TypeScript.
 
 - `frontend/` — sources statiques. `css/*.css` et `js/*.js` sont concaténés dans
   l'ordre défini par [build.js](build.js) (l'ordre compte : cascade CSS,
-  dépendances JS).
+  dépendances JS). Deux bundles JS : `app` (index.html) et `pages`
+  (`reveal.js` + `pages.js`, pour les pages générées).
 - [build-pages.js](build-pages.js) — génère les pages SEO services/blog/légal,
   les études de cas (`frontend/projets/*.html`, depuis `portfolio-data.js`) et le
-  sitemap, depuis des templates JS. Sorties **gitignorées** :
+  sitemap, ainsi que `frontend/404.html` (suivie dans git), depuis des
+  templates JS. La barre de pied est lue dans `index.html` (source unique).
+  Sorties **gitignorées** :
   `frontend/services/`, `frontend/blog/`, `frontend/mentions-legales/`,
   `frontend/politique-de-confidentialite/`, `frontend/projets/*.html`,
   `frontend/sitemap.xml`, `frontend/dist/`.
 - Ne jamais éditer une page générée : la modification est perdue au prochain
   build. Corriger le template ou les données.
-- Les routes `/`, `/portfolio`, `/contact` sont SSR ; le reste est statique.
+- Les routes `/`, `/portfolio`, `/contact` sont SSR (la section `.page` de la
+  route est active dès le HTML) ; le reste est statique.
+- **Système de design = l'accueil.** Couleurs uniquement en tokens dans `:root`
+  (`css/base.css`), un seul accent lime. Composants partagés dans
+  [css/components.css](frontend/css/components.css) : `.btn` (`btn-primary` /
+  `btn-secondary`), `.card` (+ `card-num` contour→lime, `card-go`), `.row-list`
+  (lignes des panneaux), `.info-list`, `.tag`, `.breadcrumb`, `.page-head`,
+  `.sec` (marginalia col. 1–2, corps col. 3+), `.faq`, `.home-bar` (pied commun,
+  fixe sur l'accueil). Eyebrows = `.marginalia` « (Libellé) », sans numéro.
+  Titres en casse normale, un mot clé `<em class="kw">`. Pas de CSS par page
+  sauf nécessité. Header identique partout (logo, Portfolio, Contact →
+  `/#contact`), sans burger. Un seul fond : le calque `.ambient`
+  ([css/scene.css](frontend/css/scene.css)).
+- Accueil = machine à états intro → home → panel
+  ([js/accueil.js](frontend/js/accueil.js)), portée par `html[data-stage]`,
+  posée avant le premier rendu par le script de tête de `index.html` (intro à
+  l'arrivée de l'extérieur ; home pour un référent interne, un rechargement,
+  un retour arrière via `history.state`, un lien `/#panneau`). Jamais de
+  `sessionStorage` pour « intro déjà vue » (invariant de la mesure ci-dessous).
+  Transitions = timelines nommées (Web Animations), `html[data-anim]` pendant
+  qu'elles jouent (`data-anim="intro"` pendant intro → home : le slogan reste
+  visible le temps de sa sortie). Le CSS ne décrit que des états de repos.
+  Panneaux Services / Méthode / Contact : `role="dialog"` toujours dans le DOM,
+  ouverts depuis la carte cliquée (`clip-path: inset()`), hash synchronisé,
+  piège de focus.
+- Mouvement : n'animer que `transform`, `opacity`, `clip-path`. Toujours une
+  variante `prefers-reduced-motion`. Un seul langage d'entrée, dans
+  [js/reveal.js](frontend/js/reveal.js) (`window.OrReveal`) : titre ligne par
+  ligne (`.ht-line` > `.ht-in`) puis contenu en décalé ; durées/décalages =
+  tokens `--rv-*` de `:root`. Utilisé par les panneaux de l'accueil et, au
+  scroll (IntersectionObserver, une fois), par les pages internes. L'en-tête
+  `.page-head` est animé en CSS ([css/reveal.css](frontend/css/reveal.css))
+  sans jamais partir de `opacity: 0` (titre = LCP). Sans JS / mouvement
+  réduit : rien n'est masqué.
 - SEO : `ROUTE_META` de [server.js](server.js) est la seule source de vérité des
   meta des routes SSR ; les meta par défaut de `frontend/index.html` doivent
   rester alignées avec son entrée `/`.
@@ -57,7 +99,8 @@ stockage local, et relaie les visites au CRM (dépôt séparé) qui les stocke.
 - `frontend/js/mesure.js` — script client. **Hors du bundle** `app.min.js` à
   dessein : les pages générées ne chargent pas le bundle et doivent pourtant
   être mesurées. La balise est injectée par `MESURE_TAG` dans
-  [build-pages.js](build-pages.js), et en dur dans `index.html` et `404.html`.
+  [build-pages.js](build-pages.js) (pages générées, 404 comprise), et en dur
+  dans `index.html`.
 - `POST /api/mesure` dans [server.js](server.js) — **seul endroit du code où
   l'IP et le user-agent existent**. Ils servent à calculer un HMAC à sel
   quotidien, puis disparaissent : ni journalisés, ni transmis, ni stockés.

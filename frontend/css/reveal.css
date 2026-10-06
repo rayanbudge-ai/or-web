@@ -1,0 +1,39 @@
+/* ===== REVEALS — un seul langage d'animation pour tout le site =====
+   Titre ligne par ligne derrière son masque (.ht-line > .ht-in), puis
+   contenu qui monte en décalé, en var(--ease). Valeurs : tokens --rv-* de
+   base.css, lus aussi par js/reveal.js (panneaux de l'accueil, contenu des
+   pages internes au scroll).
+
+   Robustesse :
+   - sans JS, rien n'est masqué (les classes d'attente sont posées par JS) ;
+   - prefers-reduced-motion : aucune animation, tout est visible ;
+   - en-tête de page (au-dessus de la ligne de flottaison) : animé en CSS dès
+     le premier rendu, sans attendre le JS, et sans jamais partir de
+     opacity: 0 — le titre (élément LCP) est peint dès la 1re image, ses
+     lignes ne font que finir de monter dans leur masque. Aucun mouvement ne
+     touche la mise en page (transform seul) : pas de CLS. */
+
+@media (prefers-reduced-motion: no-preference) {
+  .page-head .page-title .ht-in {
+    animation: rvHeadLine var(--rv-title-dur) var(--ease) both;
+    animation-delay: calc(var(--i, 0) * var(--rv-title-step));
+  }
+  .page-head .page-title .ht-line:nth-child(2) .ht-in { --i: 1; }
+  .page-head .page-title .ht-line:nth-child(3) .ht-in { --i: 2; }
+  .page-head .page-title .ht-line:nth-child(4) .ht-in { --i: 3; }
+
+  .page-head > :not(.page-title) {
+    animation: rvHeadRise var(--rv-item-dur) var(--ease) both;
+    animation-delay: calc(var(--rv-item-after) + var(--i, 0) * var(--rv-item-step));
+  }
+  .page-head > :nth-child(3) { --i: 1; }
+  .page-head > :nth-child(4) { --i: 2; }
+  .page-head > :nth-child(5) { --i: 3; }
+}
+@keyframes rvHeadLine { from { transform: translateY(55%); } }
+@keyframes rvHeadRise { from { transform: translateY(var(--rv-rise)); } }
+
+/* États d'attente posés par js/reveal.js sur ce qui est sous la ligne de
+   flottaison, retirés au déclenchement (une seule fois par élément). */
+.rv-hide { opacity: 0; }
+.rv-mask .ht-in { transform: translateY(105%); }

@@ -1,0 +1,23 @@
+/* ===== NAVIGATION ENTRE PAGES (View Transitions) =====
+   La nouvelle page monte depuis le bas pendant que l'ancienne poursuit sa
+   course vers le haut, comme si on continuait à faire défiler un seul
+   document. La navbar (nommée) ne bouge pas ; l'aperçu d'une carte
+   portfolio et le mockup de l'étude de cas partagent un nom (shot-<id>) →
+   la capture « devient » la page projet.
+   Sans support (Firefox) : navigation classique. Plus de barre de
+   progression ni de spotlight : l'accueil n'en a pas. */
+@view-transition { navigation: auto; }
+
+#navbar { view-transition-name: navbar; }
+
+::view-transition-old(root) { animation: vtRollOut .55s var(--ease) both; }
+::view-transition-new(root) { animation: vtRollIn .55s var(--ease) both; }
+::view-transition-group(*) { animation-duration: .55s; animation-timing-function: var(--ease); }
+@keyframes vtRollOut { to   { transform: translateY(-14vh); opacity: 0; } }
+@keyframes vtRollIn  { from { transform: translateY(14vh);  opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+}

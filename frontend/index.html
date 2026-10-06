@@ -53,6 +53,14 @@
   }
   </script>
   <!-- ===== /SEO ===== -->
+  <!-- Avant le premier rendu : classe js (sans JS, les panneaux s'ouvrent par
+       :target) et étape initiale de l'accueil (js/accueil.js), pour ne jamais
+       afficher une étape puis la remplacer.
+       intro : arrivée de l'extérieur. home : lien interne (référent du site),
+       rechargement ou retour arrière (history.state), lien direct /#panneau.
+       Volontairement sans sessionStorage : le site n'écrit rien chez le
+       visiteur (pas de bandeau de consentement, voir CLAUDE.md). -->
+  <script>(function(d){d.classList.add('js');if(location.pathname!=='/')return;var s=history.state,r=document.referrer,internal=false;try{internal=!!r&&new URL(r).origin===location.origin}catch(e){}d.setAttribute('data-stage',/^#(services|methode|contact)$/.test(location.hash)||(s&&s.stage)||internal?'home':'intro')})(document.documentElement)</script>
   <!-- Polices self-hostées : préchargement des 2 polices above-the-fold
        (Bricolage = titre LCP, DM Sans = corps) pour les sortir du chemin
        critique. crossorigin obligatoire même same-origin (fetch de font en
@@ -61,9 +69,12 @@
   <link rel="preload" href="fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin/>
   <!-- CSS bundle de prod (concat + minify de css/*.css via build.js, @font-face
        inclus). Sources séparées conservées dans frontend/css/ pour le dev. -->
-  <link rel="stylesheet" href="dist/styles.min.css"/>
+  <link rel="stylesheet" href="/dist/styles.min.css"/>
 </head>
 <body>
+
+<!-- Fond (css/scene.css) : une seule surface sombre, commune à tout le site. -->
+<div class="ambient" aria-hidden="true"><div class="scene-surface"></div></div>
 
 <!-- SKIP LINK — accessibilité clavier -->
 <a class="skip-link" href="#main-content">Aller au contenu principal</a>
@@ -72,32 +83,20 @@
 <nav id="navbar">
   <div class="nav-inner">
     <a class="logo" href="/" aria-label="OR-Web — accueil">
-      <span class="lb">&lt;</span><span>OR</span><span class="lb">-</span><span style="color:var(--gold)">Web</span><span class="lb">/&gt;</span>
+      <span class="lb">&lt;</span>OR<span class="lb">-</span><span class="logo-web">Web<span class="lb">/&gt;</span></span>
     </a>
+    <!-- Portfolio (page) et Contact (panneau, /#contact). Sur l'accueil,
+         Contact est masqué : la carte « Nous contacter » le remplace. -->
     <ul class="nav-links" role="list">
-      <li><a id="nl-home" class="active" href="/">Accueil</a></li>
-      <li><a href="/services">Services</a></li>
       <li><a id="nl-portfolio" href="/portfolio">Portfolio</a></li>
-      <li><a id="nl-contact" href="/contact">Contact</a></li>
+      <li class="nl-contact-item"><a id="nl-contact" href="/#contact">Contact</a></li>
     </ul>
-    <a class="nav-cta" href="/contact">
-      <span style="font-family:monospace;opacity:.7" aria-hidden="true">&#123;</span> Démarrer un projet <span style="font-family:monospace;opacity:.7" aria-hidden="true">&#125;</span>
-    </a>
-    <button type="button" class="burger" id="burger" onclick="toggleMenu()" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobMenu">
-      <span></span><span></span><span></span>
+    <!-- Visible quand un panneau est ouvert (Échap ferme aussi) -->
+    <button type="button" class="nav-close" id="navClose" hidden>
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l12 12M13 1L1 13"/></svg>
+      <span>Fermer</span>
     </button>
   </div>
-</nav>
-
-<!-- MOBILE MENU -->
-<nav class="mob-menu" id="mobMenu" aria-label="Menu mobile" aria-hidden="true" inert>
-  <ul role="list">
-    <li><a href="/">Accueil</a></li>
-    <li><a href="/services">Services</a></li>
-    <li><a href="/portfolio">Portfolio</a></li>
-    <li><a href="/contact">Contact</a></li>
-    <li><a class="mob-cta-link" href="/contact">Démarrer un projet →</a></li>
-  </ul>
 </nav>
 
 <!-- Repère principal (landmark <main>) — 3 sections, une par route SSR (/ /portfolio /contact).
@@ -107,304 +106,346 @@
 <!-- ===== PAGE: HOME ===== -->
 <div class="page active" id="page-home">
 
-  <!-- HERO -->
-  <section class="hero">
-    <!-- Filet de colonnes éditorial (grille apparente, discrète) -->
-    <div class="hero-grid" aria-hidden="true">
-      <div class="hero-vline"></div><div class="hero-vline"></div><div class="hero-vline"></div>
-      <div class="hero-vline"></div><div class="hero-vline"></div><div class="hero-vline"></div>
-      <div class="hero-vline"></div><div class="hero-vline"></div><div class="hero-vline"></div>
-      <div class="hero-vline"></div><div class="hero-vline"></div><div class="hero-vline"></div>
-    </div>
-    <!-- Visuel génératif : flow field de particules (flowfield.js) -->
-    <canvas class="hero-canvas" id="hero-flow" aria-hidden="true"></canvas>
-    <!-- Grain animé par-dessus (tue l'aspect "glossy") -->
-    <div class="hero-grain" aria-hidden="true"></div>
-    <!-- Atmosphère colorée discrète -->
-    <div class="orb orb1" aria-hidden="true"></div>
-    <div class="orb orb2" aria-hidden="true"></div>
+  <!-- ACCUEIL — machine à états intro → home → panel (js/accueil.js).
+       Calques de fond : .veil assombrit le fond commun (.ambient) à l'étape
+       intro ; .stage-bright, copie non assombrie du fond, est révélée par le
+       cercle au passage intro → home. -->
+  <div class="stage-bright" aria-hidden="true"><div class="scene-surface"></div></div>
+  <div class="veil" aria-hidden="true"></div>
 
-    <div class="hero-inner ed ed-grid">
-      <span class="hero-index marginalia" aria-hidden="true">(01)</span>
-      <span class="hero-place marginalia">Agence web — Bordeaux · est. 2022</span>
-
-      <h1 class="hero-title">
-        <span class="ht-line">Votre site web,</span>
-        <span class="ht-line hero-em">votre vitrine.</span>
-      </h1>
-
-      <p class="hero-sub">OR-Web façonne des expériences digitales d'exception — rapides, élégantes, conçues pour faire grandir votre entreprise.</p>
-
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="/portfolio">
-          <span class="bicon" aria-hidden="true">&#91;</span> Voir nos réalisations <span class="bicon" aria-hidden="true">&#93;</span>
-        </a>
-        <a class="hero-link" href="/contact">Démarrer un projet <span aria-hidden="true">→</span></a>
+  <section class="hero" aria-labelledby="hero-title">
+    <!-- ÉTAPE 1 — intro : le titre seul. Le h1 reste dans l'arbre
+         d'accessibilité à toutes les étapes ; le bouton posé dessus (nommé par
+         lui) porte l'action « entrer ». -->
+    <div class="intro ed">
+      <div class="intro-title ed-grid">
+        <h1 class="hero-title" id="hero-title">
+          <span class="ht-line"><span class="ht-in">Votre site web,</span></span>
+          <span class="ht-line"><span class="ht-in">votre <em class="hero-em">vitrine.</em></span></span>
+        </h1>
+        <button type="button" class="intro-enter" id="introEnter" aria-labelledby="hero-title" aria-describedby="introHint"></button>
+        <p class="intro-hint marginalia" id="introHint">
+          <span class="hint-pointer">Cliquer pour entrer</span><span class="hint-touch">Toucher pour entrer</span>
+        </p>
       </div>
     </div>
 
-    <div class="hero-scroll marginalia" aria-hidden="true">
-      <span>Défiler</span><span class="scroll-line"></span>
-    </div>
-  </section>
-
-  <!-- SERVICES — liste éditoriale numérotée alternée -->
-  <section class="sec services-ed">
-    <div class="svc-head ed-grid">
-      <span class="svc-eyebrow marginalia" aria-hidden="true">(Services)</span>
-      <h2 class="svc-h2 reveal">Ce que nous <span class="gold">créons</span></h2>
-    </div>
-
-    <ol class="svc-list">
-      <li class="svc-item reveal from-left">
-        <a class="svc-link" href="/services/creation-site-vitrine-bordeaux">
-          <span class="svc-num" aria-hidden="true">01</span>
-          <h3 class="svc-name">Sites Vitrines</h3>
-          <p class="svc-line">Des interfaces élégantes qui convertissent vos visiteurs en clients.</p>
-        </a>
-      </li>
-      <li class="svc-item reveal from-left d1">
-        <a class="svc-link" href="/services/creation-site-e-commerce-bordeaux">
-          <span class="svc-num" aria-hidden="true">02</span>
-          <h3 class="svc-name">E-Commerce</h3>
-          <p class="svc-line">Des boutiques en ligne rapides, pensées pour vendre.</p>
-        </a>
-      </li>
-      <li class="svc-item reveal from-left d2">
-        <a class="svc-link" href="/services/developpement-application-web-bordeaux">
-          <span class="svc-num" aria-hidden="true">03</span>
-          <h3 class="svc-name">Applications Web</h3>
-          <p class="svc-line">Tableaux de bord, espaces clients et outils métier pensés pour votre façon de travailler.</p>
-        </a>
-      </li>
-      <li class="svc-item reveal from-left d3">
-        <a class="svc-link" href="/services/optimisation-seo-performance-bordeaux">
-          <span class="svc-num" aria-hidden="true">04</span>
-          <h3 class="svc-name">SEO &amp; Performance</h3>
-          <p class="svc-line">Un site plus rapide et plus visible sur Google — résultats mesurables.</p>
-        </a>
-      </li>
-    </ol>
-  </section>
-
-  <!-- PROCESS — frise à chiffres géants -->
-  <section class="proc-sec full-bleed">
-    <div class="ed">
-      <div class="proc-head ed-grid">
-        <span class="proc-eyebrow marginalia" aria-hidden="true">(Méthode)</span>
-        <h2 class="proc-h2 reveal">De l'idée au <span class="gold">pixel parfait</span></h2>
+    <!-- ÉTAPE 2 — home -->
+    <div class="home-view ed">
+      <div class="home-head ed-grid">
+        <p class="hero-place marginalia">Agence web — Bordeaux · depuis 2022</p>
+        <p class="hero-sub">OR-Web façonne des expériences digitales d'exception — rapides, élégantes, conçues pour faire grandir votre entreprise.</p>
       </div>
 
-      <div class="proc-frieze">
-        <article class="proc-step reveal from-left">
-          <span class="proc-num" aria-hidden="true">01</span>
-          <div class="proc-body">
-            <h3>Découverte</h3>
-            <p>Analyse de vos besoins, objectifs et univers de marque.</p>
-          </div>
-        </article>
-        <article class="proc-step reveal from-left d1">
-          <span class="proc-num" aria-hidden="true">02</span>
-          <div class="proc-body">
-            <h3>Design</h3>
-            <p>Maquettes Figma exclusives, validées avec vous étape par étape.</p>
-          </div>
-        </article>
-        <article class="proc-step reveal from-left d2">
-          <span class="proc-num" aria-hidden="true">03</span>
-          <div class="proc-body">
-            <h3>Développement</h3>
-            <p>Code propre, performant et maintenable. Zéro template.</p>
-          </div>
-        </article>
-        <article class="proc-step reveal from-left d3">
-          <span class="proc-num" aria-hidden="true">04</span>
-          <div class="proc-body">
-            <h3>Lancement</h3>
-            <p>Déploiement, tests cross-browser, SEO technique et suivi.</p>
-          </div>
-        </article>
-      </div>
+      <!-- Les 3 entrées de l'accueil (remplacent Services / Méthode / Contact
+           de la nav). Vrais liens /#id : crawlables, et sans JS :target. -->
+      <ul class="home-cards" role="list">
+        <li>
+          <a class="hc-link card" href="/#services">
+            <span class="card-num" data-n="01" aria-hidden="true">01</span>
+            <span class="hc-title">Services</span>
+            <span class="hc-text card-text">Sites vitrines, e-commerce, applications web, SEO &amp; performance.</span>
+            <span class="hc-go card-go" aria-hidden="true">→</span>
+          </a>
+        </li>
+        <li>
+          <a class="hc-link card" href="/#methode">
+            <span class="card-num" data-n="02" aria-hidden="true">02</span>
+            <span class="hc-title">Méthode</span>
+            <span class="hc-text card-text">De la découverte au lancement, en quatre étapes.</span>
+            <span class="hc-go card-go" aria-hidden="true">→</span>
+          </a>
+        </li>
+        <li>
+          <a class="hc-link card" href="/#contact">
+            <span class="card-num" data-n="03" aria-hidden="true">03</span>
+            <span class="hc-title">Nous contacter</span>
+            <span class="hc-text card-text">Premier appel gratuit de 30 minutes.</span>
+            <span class="hc-go card-go" aria-hidden="true">→</span>
+          </a>
+        </li>
+      </ul>
     </div>
   </section>
 
-  <!-- CTA — un seul moment fort, asymétrique -->
-  <section class="cta-ed full-bleed">
-    <div class="ed ed-grid">
-      <span class="cta-eyebrow marginalia" aria-hidden="true">(Démarrer)</span>
-      <h2 class="cta-title reveal">Transformons votre vision <span class="gold">en réalité digitale.</span></h2>
-      <div class="cta-foot reveal d1">
-        <a class="btn btn-primary" href="/contact">
-          <span class="bicon" aria-hidden="true">$</span> Demander un devis gratuit <span class="bicon" aria-hidden="true">→</span>
-        </a>
-        <p class="cta-note">Premier appel gratuit de 30 minutes.</p>
-      </div>
-    </div>
-  </section>
+  <!-- PANNEAUX — étape « panel » (js/accueil.js, css/panels.css). Toujours
+       présents dans le DOM (indexables), masqués hors étape (visibility). Ils
+       s'ouvrent depuis la carte cliquée (clip-path inset). Sans JS : :target. -->
+  <div>
 
-  <div class="page-footer-slot"></div>
+    <section class="panel" id="services" role="dialog" aria-modal="true" aria-labelledby="panel-services-title" tabindex="-1" data-panel>
+      <div class="panel-tint" aria-hidden="true"></div>
+      <div class="panel-scroll">
+      <div class="panel-inner ed">
+        <div class="panel-head ed-grid">
+          <span class="panel-eyebrow marginalia pn" style="--i:0" aria-hidden="true">(Services)</span>
+          <h2 class="panel-title" id="panel-services-title"><span class="ht-line"><span class="ht-in">Ce que nous</span></span> <span class="ht-line"><span class="ht-in"><em class="panel-em">créons</em></span></span></h2>
+        </div>
+        <ol class="row-list" role="list">
+        <li class="pn row-item" style="--i:2">
+          <a class="row-link" href="/services/creation-site-vitrine-bordeaux">
+            <span class="row-num" aria-hidden="true">01</span>
+            <h3 class="row-name">Sites Vitrines</h3>
+            <p class="row-text">Des interfaces élégantes qui convertissent vos visiteurs en clients.</p>
+            <span class="row-go" aria-hidden="true">→</span>
+          </a>
+        </li>
+        <li class="pn row-item" style="--i:3">
+          <a class="row-link" href="/services/creation-site-e-commerce-bordeaux">
+            <span class="row-num" aria-hidden="true">02</span>
+            <h3 class="row-name">E-Commerce</h3>
+            <p class="row-text">Des boutiques en ligne rapides, pensées pour vendre.</p>
+            <span class="row-go" aria-hidden="true">→</span>
+          </a>
+        </li>
+        <li class="pn row-item" style="--i:4">
+          <a class="row-link" href="/services/developpement-application-web-bordeaux">
+            <span class="row-num" aria-hidden="true">03</span>
+            <h3 class="row-name">Applications Web</h3>
+            <p class="row-text">Tableaux de bord, espaces clients et outils métier pensés pour votre façon de travailler.</p>
+            <span class="row-go" aria-hidden="true">→</span>
+          </a>
+        </li>
+        <li class="pn row-item" style="--i:5">
+          <a class="row-link" href="/services/optimisation-seo-performance-bordeaux">
+            <span class="row-num" aria-hidden="true">04</span>
+            <h3 class="row-name">SEO &amp; Performance</h3>
+            <p class="row-text">Un site plus rapide et plus visible sur Google — résultats mesurables.</p>
+            <span class="row-go" aria-hidden="true">→</span>
+          </a>
+        </li>
+        </ol>
+        <p class="panel-foot pn" style="--i:6"><a class="link-arrow" href="/services">Toutes nos offres <span aria-hidden="true">→</span></a></p>
+      </div>
+      </div>
+    </section>
+
+    <section class="panel" id="methode" role="dialog" aria-modal="true" aria-labelledby="panel-methode-title" tabindex="-1" data-panel>
+      <div class="panel-tint" aria-hidden="true"></div>
+      <div class="panel-scroll">
+      <div class="panel-inner ed">
+        <div class="panel-head ed-grid">
+          <span class="panel-eyebrow marginalia pn" style="--i:0" aria-hidden="true">(Méthode)</span>
+          <h2 class="panel-title" id="panel-methode-title"><span class="ht-line"><span class="ht-in">De l'idée au</span></span> <span class="ht-line"><span class="ht-in"><em class="panel-em">pixel parfait</em></span></span></h2>
+        </div>
+        <ol class="row-list" role="list">
+        <li class="pn row-item" style="--i:2">
+          <div class="row-link">
+            <span class="row-num" aria-hidden="true">01</span>
+            <h3 class="row-name">Découverte</h3>
+            <p class="row-text">Analyse de vos besoins, objectifs et univers de marque.</p>
+          </div>
+        </li>
+        <li class="pn row-item" style="--i:3">
+          <div class="row-link">
+            <span class="row-num" aria-hidden="true">02</span>
+            <h3 class="row-name">Design</h3>
+            <p class="row-text">Maquettes Figma exclusives, validées avec vous étape par étape.</p>
+          </div>
+        </li>
+        <li class="pn row-item" style="--i:4">
+          <div class="row-link">
+            <span class="row-num" aria-hidden="true">03</span>
+            <h3 class="row-name">Développement</h3>
+            <p class="row-text">Code propre, performant et maintenable. Zéro template.</p>
+          </div>
+        </li>
+        <li class="pn row-item" style="--i:5">
+          <div class="row-link">
+            <span class="row-num" aria-hidden="true">04</span>
+            <h3 class="row-name">Lancement</h3>
+            <p class="row-text">Déploiement, tests cross-browser, SEO technique et suivi.</p>
+          </div>
+        </li>
+        </ol>
+        <p class="panel-foot pn" style="--i:6"><a class="link-arrow" href="/#contact">Démarrer un projet <span aria-hidden="true">→</span></a></p>
+      </div>
+      </div>
+    </section>
+
+    <section class="panel" id="contact" role="dialog" aria-modal="true" aria-labelledby="panel-contact-title" tabindex="-1" data-panel>
+      <div class="panel-tint" aria-hidden="true"></div>
+      <div class="panel-scroll">
+      <div class="panel-inner ed">
+        <div class="panel-head ed-grid">
+          <span class="panel-eyebrow marginalia pn" style="--i:0" aria-hidden="true">(Contact)</span>
+          <h2 class="panel-title" id="panel-contact-title"><span class="ht-line"><span class="ht-in">Transformons votre vision</span></span> <span class="ht-line"><span class="ht-in"><em class="panel-em">en réalité digitale.</em></span></span></h2>
+        </div>
+        <div class="pc-body ed-grid">
+          <div class="pc-main">
+            <p class="pc-intro pn" style="--i:2">Une idée, une vision, un problème à résoudre ? On écoute, puis on construit avec vous.</p>
+            <div class="actions pn" style="--i:3">
+              <a class="btn btn-primary" href="/contact">
+                <span class="bicon" aria-hidden="true">$</span> Demander un devis gratuit <span class="bicon" aria-hidden="true">→</span>
+              </a>
+              <p class="actions-note">Premier appel gratuit de 30 minutes.</p>
+            </div>
+          </div>
+          <ul class="pc-infos info-list" role="list">
+            <li class="info-row pn" style="--i:4">
+              <span class="marginalia">Email</span>
+              <a class="info-val" href="mailto:contact@or-web.fr">contact@or-web.fr</a>
+            </li>
+            <li class="info-row pn" style="--i:5">
+              <span class="marginalia">Téléphone</span>
+              <a class="info-val" href="tel:+33649951225">+33 6 49 95 12 25</a>
+            </li>
+            <li class="info-row pn" style="--i:6">
+              <span class="marginalia">Localisation</span>
+              <span class="info-val">Bordeaux, France</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      </div>
+    </section>
+
+  </div>
+
 </div>
 
 <!-- ===== PAGE: PORTFOLIO ===== -->
 <div class="page" id="page-portfolio">
 
-  <!-- HEADER éditorial -->
-  <header class="port-head ed">
-    <span class="port-eyebrow marginalia" aria-hidden="true">(Portfolio — 03)</span>
-    <h1 class="port-h1 reveal">Nos <span class="gold">réalisations</span></h1>
-    <p class="port-lead reveal d1">Sites web, applications métier et optimisations SEO — filtrez par service pour découvrir chaque réalisation.</p>
+  <header class="page-head ed ed-grid">
+    <span class="page-eyebrow marginalia" aria-hidden="true">(Portfolio)</span>
+    <h1 class="page-title"><span class="ht-line"><span class="ht-in">Nos <em class="kw">réalisations</em></span></span></h1>
+    <p class="page-lead">Sites web, applications métier et optimisations SEO — filtrez par service pour découvrir chaque réalisation.</p>
   </header>
 
   <!-- Catalogue filtré par service (rendu portfolio-data.js, interactivité portfolio.js) -->
   <div id="port-catalog"></div>
 
-  <!-- CLÔTURE (un seul CTA sur le site : celui de l'accueil) -->
-  <div class="port-end ed">
-    <p class="port-end-line">Votre site pourrait être <span class="gold">le prochain.</span></p>
-    <a class="btn btn-primary" href="/contact">
-      <span class="bicon" aria-hidden="true">{</span> Démarrer un projet <span class="bicon" aria-hidden="true">}</span>
-    </a>
-  </div>
-
-  <div class="page-footer-slot"></div>
+  <section class="sec" aria-labelledby="port-cta-title">
+    <div class="ed ed-grid">
+      <span class="sec-label marginalia" aria-hidden="true">(Contact)</span>
+      <div class="sec-body">
+        <h2 class="sec-title" id="port-cta-title">Votre site pourrait être <em class="kw">le prochain.</em></h2>
+        <p class="sec-p">Premier appel gratuit de 30 minutes. Réponse sous 24h.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="/contact"><span class="bicon" aria-hidden="true">$</span> Démarrer un projet <span class="bicon" aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 
 <!-- ===== PAGE: CONTACT ===== -->
+<!-- Même en-tête et mêmes coordonnées que le panneau Contact de l'accueil,
+     plus le formulaire. -->
 <div class="page" id="page-contact">
 
-  <section class="contact-ed ed">
-    <header class="contact-head">
-      <span class="contact-eyebrow marginalia" aria-hidden="true">(Contact — 04)</span>
-      <h1 class="contact-h1 reveal">Parlons de votre <span class="gold">projet.</span></h1>
-    </header>
+  <header class="page-head ed ed-grid">
+    <span class="page-eyebrow marginalia" aria-hidden="true">(Contact)</span>
+    <h1 class="page-title"><span class="ht-line"><span class="ht-in">Transformons votre vision</span></span> <span class="ht-line"><span class="ht-in"><em class="kw">en réalité digitale.</em></span></span></h1>
+    <p class="page-lead">Une idée, une vision, un problème à résoudre ? On écoute, puis on construit avec vous.</p>
+  </header>
 
-    <div class="contact-body">
-      <aside class="contact-aside">
-        <p class="contact-intro reveal">Une idée, une vision, un problème à résoudre ? On écoute, puis on construit avec vous.</p>
-
-      <div class="c-infos">
-        <div class="c-info reveal d1">
-          <div class="c-icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          </div>
-          <div><span class="c-info-label">Email</span><a href="mailto:contact@or-web.fr" class="c-info-val">contact@or-web.fr</a></div>
-        </div>
-        <div class="c-info reveal d2">
-          <div class="c-icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          </div>
-          <div><span class="c-info-label">Téléphone</span><a href="tel:+33649951225" class="c-info-val">+33 6 49 95 12 25</a></div>
-        </div>
-        <div class="c-info reveal d3">
-          <div class="c-icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          </div>
-          <div><span class="c-info-label">Localisation</span><span class="c-info-val">Bordeaux, France</span></div>
-        </div>
-        <div class="c-info reveal d4">
-          <div class="c-icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          </div>
-          <div><span class="c-info-label">Disponibilité</span><span class="c-info-val">Lun–Ven, 9h–18h</span></div>
-        </div>
-      </div>
-
-      <div class="c-code reveal">
-        <div class="code-hdr">
-          <span class="cdot cr"></span><span class="cdot cy"></span><span class="cdot cg"></span>
-          <span class="code-fname">response.time.js</span>
-        </div>
-        <div class="c-code-body">// Délai de réponse garanti
-const reply = {
-  email:    <span class="cg-text">"&lt; 24h"</span>,
-  devis:    <span class="cg-text">"&lt; 48h"</span>,
-  deadline: <span class="cg-text">"respectée"</span>,
-};</div>
-      </div>
-      </aside>
-
-      <!-- FORM -->
+  <section class="sec" aria-label="Formulaire et coordonnées">
+    <div class="ed ed-grid">
+      <!-- Ordre DOM = ordre de lecture mobile : formulaire, puis coordonnées -->
       <div class="contact-form-col">
       <!-- aria-live annonce le résultat du formulaire aux lecteurs d'écran -->
       <div aria-live="polite" aria-atomic="true" class="sr-only" id="form-status"></div>
-      <div class="contact-right reveal" id="contact-right">
-      <form class="c-form" id="c-form" onsubmit="submitForm(event)" novalidate>
-        <div class="form-title">
-          <span style="opacity:.6">&#123;</span>
-          Formulaire de contact
-          <span style="opacity:.6">&#125;</span>
-        </div>
-
+      <div id="contact-right">
+      <form id="c-form" onsubmit="submitForm(event)" novalidate>
         <!-- Honeypot anti-spam : invisible et hors tabulation pour un humain,
              rempli par les bots. Le serveur rejette silencieusement si non vide. -->
-        <div style="position:absolute;left:-9999px;top:-9999px" aria-hidden="true">
+        <div class="hp-field" aria-hidden="true">
           <label for="f-website">Ne pas remplir ce champ</label>
           <input id="f-website" type="text" name="website" tabindex="-1" autocomplete="off"/>
         </div>
 
         <div class="form-row">
-          <div class="fg" id="fg-name">
-            <label for="f-name">Nom complet *</label>
-            <div class="input-wrap">
-              <span class="ipfx">&#47;&#47;</span>
-              <input id="f-name" type="text" placeholder="Jean Dupont" autocomplete="name" oninput="liveVal('name')" onblur="blurField('name')"/>
-            </div>
-            <span class="ferr" id="err-name" style="display:none"></span>
+          <div class="form-field" id="fg-name">
+            <label class="marginalia" for="f-name">Nom complet *</label>
+            <input id="f-name" type="text" placeholder="Jean Dupont" autocomplete="name" oninput="liveVal('name')" onblur="blurField('name')"/>
+            <span class="ferr" id="err-name" hidden></span>
           </div>
-          <div class="fg" id="fg-email">
-            <label for="f-email">Email *</label>
-            <div class="input-wrap">
-              <span class="ipfx">@</span>
-              <input id="f-email" type="email" placeholder="jean@exemple.fr" autocomplete="email" oninput="liveVal('email')" onblur="blurField('email')"/>
-            </div>
-            <span class="ferr" id="err-email" style="display:none"></span>
+          <div class="form-field" id="fg-email">
+            <label class="marginalia" for="f-email">Email *</label>
+            <input id="f-email" type="email" placeholder="jean@exemple.fr" autocomplete="email" oninput="liveVal('email')" onblur="blurField('email')"/>
+            <span class="ferr" id="err-email" hidden></span>
           </div>
         </div>
 
-        <div class="fg" id="fg-subject">
-          <label for="f-subject">Sujet *</label>
-          <div class="input-wrap">
-            <span class="ipfx">&gt;_</span>
-            <input id="f-subject" type="text" placeholder="Création d'un site vitrine" oninput="liveVal('subject')" onblur="blurField('subject')"/>
-          </div>
-          <span class="ferr" id="err-subject" style="display:none"></span>
+        <div class="form-field" id="fg-subject">
+          <label class="marginalia" for="f-subject">Sujet *</label>
+          <input id="f-subject" type="text" placeholder="Création d'un site vitrine" oninput="liveVal('subject')" onblur="blurField('subject')"/>
+          <span class="ferr" id="err-subject" hidden></span>
         </div>
 
-        <div class="fg" id="fg-message">
-          <label for="f-message">Votre message *</label>
-          <div class="input-wrap ta-wrap">
-            <textarea id="f-message" rows="6" placeholder="Décrivez votre projet, vos objectifs, vos contraintes…" oninput="liveVal('message');document.getElementById('ccount').textContent=this.value.length+' car.'" onblur="blurField('message')"></textarea>
-            <span class="ccount" id="ccount">0 car.</span>
-          </div>
-          <span class="ferr" id="err-message" style="display:none"></span>
+        <div class="form-field" id="fg-message">
+          <label class="marginalia" for="f-message">Votre message *</label>
+          <textarea id="f-message" rows="6" placeholder="Décrivez votre projet, vos objectifs, vos contraintes…" oninput="liveVal('message');document.getElementById('ccount').textContent=this.value.length+' car.'" onblur="blurField('message')"></textarea>
+          <span class="ccount" id="ccount">0 car.</span>
+          <span class="ferr" id="err-message" hidden></span>
         </div>
 
-        <div class="fg form-consent" id="fg-consent">
+        <div class="form-field" id="fg-consent">
           <label class="consent-label" for="f-consent">
             <input id="f-consent" type="checkbox" onchange="liveVal('consent')" onblur="blurField('consent')"/>
             <span>J'accepte que mes données soient traitées pour répondre à ma demande, conformément à la <a href="/politique-de-confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>. *</span>
           </label>
-          <span class="ferr" id="err-consent" style="display:none"></span>
+          <span class="ferr" id="err-consent" hidden></span>
         </div>
 
-        <button type="submit" class="btn btn-primary form-submit" id="f-submit">
-          <span class="bicon" aria-hidden="true">→</span> Envoyer le message <span class="bicon" aria-hidden="true">_</span>
-        </button>
-        <p class="form-note">* Champs obligatoires. Vos données ne seront jamais partagées.</p>
+        <div class="form-foot">
+          <div class="actions">
+            <button type="submit" class="btn btn-primary" id="f-submit">
+              <span class="bicon" aria-hidden="true">$</span> Envoyer le message <span class="bicon" aria-hidden="true">→</span>
+            </button>
+            <p class="actions-note">* Champs obligatoires. Vos données ne seront jamais partagées.</p>
+          </div>
+          <!-- Erreur d'envoi affichée dans la page (remplace alert()) ; role=alert
+               l'annonce aux lecteurs d'écran dès qu'elle est remplie. -->
+          <p class="form-error" id="form-error" role="alert" hidden></p>
+        </div>
       </form>
       </div>
       </div>
+
+      <ul class="contact-infos info-list" role="list">
+        <li class="info-row">
+          <span class="marginalia">Email</span>
+          <a class="info-val" href="mailto:contact@or-web.fr">contact@or-web.fr</a>
+        </li>
+        <li class="info-row">
+          <span class="marginalia">Téléphone</span>
+          <a class="info-val" href="tel:+33649951225">+33 6 49 95 12 25</a>
+        </li>
+        <li class="info-row">
+          <span class="marginalia">Localisation</span>
+          <span class="info-val">Bordeaux, France</span>
+        </li>
+        <li class="info-row">
+          <span class="marginalia">Disponibilité</span>
+          <span class="info-val">Lun–Ven, 9h–18h</span>
+        </li>
+      </ul>
     </div>
   </section>
-
-  <div class="page-footer-slot"></div>
 </div>
 
 </main>
 
+<!-- Barre de pied, commune à tout le site (copiée telle quelle dans les
+     pages générées par build-pages.js). Fixe sur l'accueil (home.css),
+     dans le flux ailleurs. -->
+<footer class="home-bar">
+  <div class="home-bar-inner">
+    <p>© 2026 OR-Web</p>
+    <nav class="hb-legal" aria-label="Informations légales">
+      <a href="/mentions-legales">Mentions légales</a>
+      <a href="/politique-de-confidentialite">Politique de confidentialité</a>
+    </nav>
+    <p><a href="mailto:contact@or-web.fr">contact@or-web.fr</a><span aria-hidden="true"> · </span>Bordeaux</p>
+  </div>
+</footer>
+
 <!-- JS bundle de prod (concat + minify de js/*.js via build.js), chargé en
      defer pour ne plus bloquer le rendu. Sources séparées dans frontend/js/. -->
-<script src="dist/app.min.js" defer></script>
+<script src="/dist/app.min.js" defer></script>
 <!-- Mesure d'audience sans cookie — voir js/mesure.js. Hors bundle à dessein :
      les pages générées ne chargent pas app.min.js et doivent être mesurées. -->
 <script src="/js/mesure.js" defer></script>
