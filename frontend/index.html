@@ -89,7 +89,7 @@
          Contact est masqué : la carte « Nous contacter » le remplace. -->
     <ul class="nav-links" role="list">
       <li><a id="nl-portfolio" href="/portfolio">Portfolio</a></li>
-      <li class="nl-contact-item"><a id="nl-contact" href="/#contact">Contact</a></li>
+      <li class="nl-contact-item"><a id="nl-contact" href="/#contact" data-cta="entete-contact">Contact</a></li>
     </ul>
     <!-- Visible quand un panneau est ouvert (Échap ferme aussi) -->
     <button type="button" class="nav-close" id="navClose" hidden>
@@ -157,7 +157,7 @@
           </a>
         </li>
         <li>
-          <a class="hc-link card" href="/#contact">
+          <a class="hc-link card" href="/#contact" data-cta="accueil-carte-contact">
             <span class="card-num" data-n="03" aria-hidden="true">03</span>
             <span class="hc-title">Nous contacter</span>
             <span class="hc-text card-text">Premier appel gratuit de 30 minutes.</span>
@@ -258,7 +258,7 @@
           </div>
         </li>
         </ol>
-        <p class="panel-foot pn" style="--i:6"><a class="link-arrow" href="/#contact">Démarrer un projet <span aria-hidden="true">→</span></a></p>
+        <p class="panel-foot pn" style="--i:6"><a class="link-arrow" href="/#contact" data-cta="methode-demarrer">Démarrer un projet <span aria-hidden="true">→</span></a></p>
       </div>
       </div>
     </section>
@@ -275,7 +275,7 @@
           <div class="pc-main">
             <p class="pc-intro pn" style="--i:2">Une idée, une vision, un problème à résoudre ? On écoute, puis on construit avec vous.</p>
             <div class="actions pn" style="--i:3">
-              <a class="btn btn-primary" href="/contact">
+              <a class="btn btn-primary" href="/contact" data-cta="panneau-contact-formulaire">
                 <span class="bicon" aria-hidden="true">$</span> Demander un devis gratuit <span class="bicon" aria-hidden="true">→</span>
               </a>
               <p class="actions-note">Premier appel gratuit de 30 minutes.</p>
@@ -284,11 +284,11 @@
           <ul class="pc-infos info-list" role="list">
             <li class="info-row pn" style="--i:4">
               <span class="marginalia">Email</span>
-              <a class="info-val" href="mailto:contact@or-web.fr">contact@or-web.fr</a>
+              <a class="info-val" href="mailto:contact@or-web.fr" data-cta="panneau-contact-email">contact@or-web.fr</a>
             </li>
             <li class="info-row pn" style="--i:5">
               <span class="marginalia">Téléphone</span>
-              <a class="info-val" href="tel:+33649951225">+33 6 49 95 12 25</a>
+              <a class="info-val" href="tel:+33649951225" data-cta="panneau-contact-tel">+33 6 49 95 12 25</a>
             </li>
             <li class="info-row pn" style="--i:6">
               <span class="marginalia">Localisation</span>
@@ -323,7 +323,7 @@
         <h2 class="sec-title" id="port-cta-title">Votre site pourrait être <em class="kw">le prochain.</em></h2>
         <p class="sec-p">Premier appel gratuit de 30 minutes. Réponse sous 24h.</p>
         <div class="actions">
-          <a class="btn btn-primary" href="/contact"><span class="bicon" aria-hidden="true">$</span> Démarrer un projet <span class="bicon" aria-hidden="true">→</span></a>
+          <a class="btn btn-primary" href="/contact" data-cta="portfolio-demarrer"><span class="bicon" aria-hidden="true">$</span> Démarrer un projet <span class="bicon" aria-hidden="true">→</span></a>
         </div>
       </div>
     </div>
@@ -408,11 +408,11 @@
       <ul class="contact-infos info-list" role="list">
         <li class="info-row">
           <span class="marginalia">Email</span>
-          <a class="info-val" href="mailto:contact@or-web.fr">contact@or-web.fr</a>
+          <a class="info-val" href="mailto:contact@or-web.fr" data-cta="page-contact-email">contact@or-web.fr</a>
         </li>
         <li class="info-row">
           <span class="marginalia">Téléphone</span>
-          <a class="info-val" href="tel:+33649951225">+33 6 49 95 12 25</a>
+          <a class="info-val" href="tel:+33649951225" data-cta="page-contact-tel">+33 6 49 95 12 25</a>
         </li>
         <li class="info-row">
           <span class="marginalia">Localisation</span>
@@ -439,7 +439,7 @@
       <a href="/mentions-legales">Mentions légales</a>
       <a href="/politique-de-confidentialite">Politique de confidentialité</a>
     </nav>
-    <p><a href="mailto:contact@or-web.fr">contact@or-web.fr</a><span aria-hidden="true"> · </span>Bordeaux</p>
+    <p><a href="mailto:contact@or-web.fr" data-cta="pied-email">contact@or-web.fr</a><span aria-hidden="true"> · </span>Bordeaux</p>
   </div>
 </footer>
 

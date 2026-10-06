@@ -43,7 +43,7 @@ function navbar(active) {
     </a>
     <ul class="nav-links" role="list">
       <li><a href="/portfolio"${act('portfolio')}>Portfolio</a></li>
-      <li><a href="/#contact">Contact</a></li>
+      <li><a href="/#contact" data-cta="entete-contact">Contact</a></li>
     </ul>
   </div>
 </nav>`;
@@ -708,7 +708,7 @@ ${section('RGPD', `<div class="prose">
     <h2>Mesure d'audience</h2>
     <p>Nous mesurons la fréquentation du site avec notre propre outil, hébergé sur nos serveurs. Aucune donnée n'est transmise à un tiers.</p>
     <p>Cette mesure fonctionne <strong>sans cookie et sans identifiant persistant</strong>. À chaque page consultée, notre serveur calcule une empreinte à partir de votre adresse IP et de votre navigateur, combinée à une clé secrète <strong>renouvelée chaque jour</strong>. Seule cette empreinte est enregistrée : votre adresse IP n'est ni conservée, ni journalisée, ni transmise. Parce que la clé change quotidiennement, l'empreinte ne permet pas de vous suivre d'un jour à l'autre, ni d'un site à l'autre.</p>
-    <p>Les informations enregistrées sont : la page consultée, son titre, le temps passé dessus, le <em>nom de domaine</em> du site depuis lequel vous êtes arrivé (jamais l'adresse complète, qui pourrait contenir une recherche), le nom d'une campagne si vous avez suivi un lien tagué, et une catégorie d'appareil (mobile, tablette, ordinateur). Ces données sont conservées <strong>25 mois</strong>, puis supprimées automatiquement.</p>
+    <p>Les informations enregistrées sont : la page consultée, son titre, le temps passé dessus, le <em>nom de domaine</em> du site depuis lequel vous êtes arrivé (jamais l'adresse complète, qui pourrait contenir une recherche), le nom d'une campagne si vous avez suivi un lien tagué, une catégorie d'appareil (mobile, tablette, ordinateur), le nom interne des principaux boutons sur lesquels vous cliquez (par exemple « démarrer un projet » ou le lien téléphone), et le seul fait qu'un message a été envoyé par le formulaire de contact — jamais son contenu ni vos coordonnées. Ces données sont conservées <strong>25 mois</strong>, puis supprimées automatiquement.</p>
     <p>Si votre navigateur émet un signal de refus de suivi (<em>Do Not Track</em> ou <em>Global Privacy Control</em>), aucune mesure n'est effectuée.</p>
     <h2>Vos droits</h2>
     <p>Vous disposez des droits d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité. Pour les exercer, écrivez à <a href="mailto:${LEGAL.email}">${LEGAL.email}</a> en précisant votre demande et un moyen de vous identifier.</p>

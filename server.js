@@ -180,34 +180,57 @@ app.get('/api/health', (req, res) => res.json({ ok: true }));
    user-agent existent. Ils servent à calculer un hash, puis disparaissent
    avec la requête — ils ne sont ni journalisés, ni transmis, ni stockés.
 
-   Le sel change chaque jour, ce qui rend le hash intraçable d'un jour à
-   l'autre : un même navigateur revenu demain sera compté comme un nouveau
-   visiteur. C'est la contrepartie assumée de l'absence de cookie.
+   La clé du hash est tirée au hasard chaque jour, gardée en mémoire seulement,
+   et jetée au changement de jour. Une fois jetée, personne — ni nous, ni un
+   accès à la base du CRM — ne peut plus relier un hash stocké à une IP et un
+   user-agent : les hashes des jours passés deviennent anonymes, pas seulement
+   pseudonymes. Une clé fixe (l'ancien SEL_MESURE) ne le permettait pas : qui
+   la détenait pouvait recalculer le hash de n'importe quel couple IP/UA
+   supposé, sur toute la durée de rétention.
+
+   Contreparties assumées :
+   - un même navigateur revenu demain est un nouveau visiteur (pas de cookie) ;
+   - un redémarrage du service (déploiement Render) tire une nouvelle clé : les
+     visiteurs déjà vus ce jour-là sont recomptés une fois. Rare, et l'erreur
+     ne porte que sur les visiteurs uniques d'une journée ;
+   - avec plusieurs instances, chacune aurait sa clé. Le service tourne sur
+     une seule instance ; en ajouter une gonflerait les visiteurs uniques.
    ────────────────────────────────────────────────────────────────────────── */
 
 const CRM_URL = (process.env.CRM_API_URL || '').replace(/\/+$/, '');
 const CRM_MESURE_KEY = process.env.MESURE_API_KEY || '';
-// Sel du hash visiteur. Sans lui, pas de mesure : un sel généré au démarrage
-// donnerait des identités différentes par instance et remises à zéro à chaque
-// déploiement, donc des visiteurs uniques faux plutôt qu'absents.
-const SEL_MESURE = process.env.SEL_MESURE || '';
-const MESURE_ACTIVE = Boolean(CRM_URL && CRM_MESURE_KEY && SEL_MESURE);
+const MESURE_ACTIVE = Boolean(CRM_URL && CRM_MESURE_KEY);
 
 if (!MESURE_ACTIVE) {
   console.warn(
-    '[mesure] inactive — renseigner CRM_API_URL, MESURE_API_KEY et SEL_MESURE pour l\'activer'
+    '[mesure] inactive — renseigner CRM_API_URL et MESURE_API_KEY pour l\'activer'
   );
 }
 
-// HMAC plutôt qu'un sha256 concaténé : la clé reste la clé, et la rotation
-// quotidienne se fait par le message sans jamais avoir à stocker le sel du jour.
-function hashVisiteur(req) {
+// Clé du jour : jamais écrite, jamais journalisée, remplacée (donc perdue) dès
+// que la date UTC change.
+let cleDuJour = { jour: '', cle: null };
+
+function cleHashDuJour() {
   const jour = new Date().toISOString().slice(0, 10); // AAAA-MM-JJ, UTC
+  if (cleDuJour.jour !== jour) {
+    cleDuJour = { jour, cle: crypto.randomBytes(32) };
+  }
+  return cleDuJour.cle;
+}
+
+function hashVisiteur(req) {
   const ua = req.get('user-agent') || '';
   return crypto
-    .createHmac('sha256', SEL_MESURE)
-    .update(`${jour}:${req.ip}:${ua}`)
+    .createHmac('sha256', cleHashDuJour())
+    .update(`${req.ip}:${ua}`)
     .digest('hex');
+}
+
+// Signaux de refus de suivi, tels que le navigateur les envoie en en-tête
+// (pendants de navigator.doNotTrack / globalPrivacyControl côté client).
+function refusDeSuivi(req) {
+  return req.get('dnt') === '1' || req.get('sec-gpc') === '1';
 }
 
 // Envoi au CRM sans attendre : la réponse au navigateur ne doit pas dépendre
@@ -236,7 +259,15 @@ const mesureLimiter = rateLimit({
   message: { error: 'Trop de requêtes.' },
 });
 
-const TYPES_MESURE = new Set(['page', 'conversion']);
+// Types qu'un NAVIGATEUR peut envoyer. `conversion` n'en fait pas partie : la
+// seule conversion qui compte est relayée par /api/contact, une fois le mail
+// réellement parti. L'accepter ici laissait n'importe qui gonfler le nombre de
+// contacts d'un simple curl — et c'est le chiffre qui pilote les décisions.
+const TYPES_MESURE = new Set(['page', 'cta']);
+
+// Nom d'un appel à l'action : le même slug que le CRM exige. Tout autre texte
+// est écarté plutôt que tronqué — un champ libre pourrait porter n'importe quoi.
+const SLUG_CTA = /^[a-z0-9][a-z0-9_-]{0,59}$/;
 
 app.post('/api/mesure', mesureLimiter, (req, res) => {
   // 204 même quand la mesure est inactive ou le corps invalide : le client est
@@ -253,6 +284,21 @@ app.post('/api/mesure', mesureLimiter, (req, res) => {
   if (type !== undefined && !TYPES_MESURE.has(type)) return;
 
   const borner = (v, max) => (typeof v === 'string' && v ? v.slice(0, max) : null);
+
+  if (type === 'cta') {
+    if (typeof titre !== 'string' || !SLUG_CTA.test(titre)) return;
+    // Un clic n'a ni référent, ni campagne, ni durée : la session les tient de
+    // sa première page vue, côté CRM.
+    relayerMesure({
+      evenement_id,
+      visiteur_hash: hashVisiteur(req),
+      type: 'cta',
+      chemin: chemin.slice(0, 255),
+      titre,
+      appareil: borner(appareil, 20),
+    });
+    return;
+  }
 
   relayerMesure({
     evenement_id,
@@ -345,7 +391,9 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
     // Conversion comptee ici, et non dans le navigateur : seul ce point du code
     // sait que le message est reellement parti. Aucun champ du formulaire n'est
     // transmis a la mesure, seulement le fait qu'une conversion a eu lieu.
-    if (MESURE_ACTIVE) {
+    // Le refus de suivi est honore ici aussi : mesure.js s'arrete sur DNT/GPC,
+    // et la politique de confidentialite promet qu'alors rien n'est mesure.
+    if (MESURE_ACTIVE && !refusDeSuivi(req)) {
       relayerMesure({
         evenement_id: crypto.randomUUID(),
         visiteur_hash: hashVisiteur(req),
