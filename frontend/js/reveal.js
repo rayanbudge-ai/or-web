@@ -167,4 +167,17 @@
      pages générées. L'accueil a ses propres timelines (accueil.js). */
   const scope = document.querySelector('.page.active') || document.getElementById('main-content');
   if (scope && scope.id !== 'page-home') scroll(scope);
+
+  /* Vidéos d'aperçu (cartes portfolio, études de cas) : lues seulement quand
+     elles sont à l'écran, et jamais en mouvement réduit (le poster reste).
+     preload="none" dans le HTML : rien n'est téléchargé avant la lecture. */
+  const videos = document.querySelectorAll('video[data-autoplay]');
+  if (videos.length && 'IntersectionObserver' in window) {
+    const vio = new IntersectionObserver(entries => entries.forEach(e => {
+      if (e.isIntersecting && !reduce.matches) e.target.play().catch(() => {});
+      else e.target.pause();
+    }), { threshold: .25 });
+    videos.forEach(v => vio.observe(v));
+    reduce.addEventListener('change', () => { if (reduce.matches) videos.forEach(v => v.pause()); });
+  }
 })();

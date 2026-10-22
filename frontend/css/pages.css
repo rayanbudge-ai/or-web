@@ -86,7 +86,7 @@
   transform-origin: top left;
 }
 .browser-frame-img { aspect-ratio: auto; }
-.browser-frame-img img { display: block; width: 100%; height: auto; }
+.browser-frame-img img, .browser-frame-img video { display: block; width: 100%; height: auto; }
 
 @media (max-width: 900px) {
   .proj-facts, .proj-hero-shot { grid-column: 1 / 13; }

@@ -54,6 +54,46 @@
       },
     },
     {
+      id: 'chateau-jonzac',
+      service: 'site-web',
+      subType: 'vitrine',
+      subTypeLabel: 'Vitrine',
+      title: 'Château de Jonzac',
+      tags: ['Concept', 'Scroll scrub', 'Canvas', 'JS Vanilla'],
+      desc: "Concept de site immersif pour le château de Jonzac : un vol de drone qui avance au défilement, puis un millénaire d'histoire en quatre chapitres. Projet personnel.",
+      year: '2026',
+      /* Projet personnel, sans commande du château ni de la mairie : badge
+         « concept » et aucune fausse adresse dans la barre du navigateur. */
+      badge: 'concept',
+      /* Enregistrement du défilement (Puppeteer) : l'effet au scroll ne se
+         montre pas en capture fixe, et la démo pèserait ~20 Mo d'images. */
+      video: 'projets/img/chateau-jonzac/defilement.mp4',
+      poster: 'projets/img/chateau-jonzac/poster.jpg',
+      siteUrl: 'Château de Jonzac',
+      url: 'projets/chateau-jonzac.html',
+      detail: {
+        metaTitle: 'Château de Jonzac — Concept de site immersif | Portfolio OR-Web',
+        metaDesc: "Étude de cas Château de Jonzac : concept de site vitrine immersif, vol de drone piloté au défilement sur canvas et récit de l'héritage du château. HTML/CSS/JS vanilla par OR-Web.",
+        label: 'Concept',
+        heroTitle: 'Château de <em class="kw">Jonzac</em>',
+        heroDesc: "Concept de site vitrine immersif autour du château de Jonzac, en Haute Saintonge. Un vol de drone se déroule au rythme du défilement, puis la page raconte un millénaire d'histoire. Projet personnel, réalisé sans commande du château ni de la mairie.",
+        client: 'Projet personnel',
+        category: 'Site vitrine immersif',
+        /* Pas de champ `duration` : non communiquée, rien d'inventé. */
+        screens: [
+          { addr: 'Château de Jonzac · Le vol',     img: 'projets/img/chateau-jonzac/vol.jpg',        title: 'Château de Jonzac — Le vol au défilement', featured: true },
+          { addr: 'Château de Jonzac · Héritage',   img: 'projets/img/chateau-jonzac/heritage.jpg',   title: 'Château de Jonzac — Atmosphère et héritage' },
+          { addr: 'Château de Jonzac · Chapitres',  img: 'projets/img/chateau-jonzac/heritage-2.jpg', title: 'Château de Jonzac — De la forteresse au logis' },
+        ],
+        paragraphs: [
+          "Un monument se raconte mieux en mouvement. L'idée de ce concept : ouvrir le site du château de Jonzac sur un <strong>vol de drone piloté par le défilement</strong>. Le titre s'efface, l'appareil avance autour des tours, et quatre légendes rappellent les grandes étapes — la forteresse du XIe siècle, les tours jumelles du XVe, la cour intérieure, les rois qui y ont séjourné.",
+          "Plutôt que de faire varier la position d'une vidéo, saccadé sur la plupart des navigateurs, le vol est découpé en <strong>277 images dessinées sur un canvas</strong> selon la position de défilement, avec un léger lissage. Les images se chargent en parallèle et la vidéo reste en repli. Le réglage « mouvement réduit » du système est respecté.",
+          "La suite de la page adopte une direction <strong>pierre de Saintonge</strong> : ivoire, noir profond, Cormorant Garamond pour les titres et Outfit pour le texte. L'héritage du château se lit en quatre chapitres illustrés, jusqu'à l'invitation aux visites. HTML, CSS et JS vanilla, sans framework, responsive.",
+        ],
+        stack: ['HTML5 Sémantique', 'CSS3', 'JS Vanilla', 'Canvas 2D', 'Scroll scrub', 'Séquence d\'images', 'IntersectionObserver', 'Responsive'],
+      },
+    },
+    {
       id: 'lhomme-invisible',
       service: 'site-web',
       subType: 'vitrine',
@@ -283,7 +323,14 @@
   const MEDIA_PLACEHOLDER =
     '<div class="media-placeholder"><span>Aperçu non public</span></div>';
 
+  /* video : enregistrement du défilement d'un site (effets au scroll qu'une
+     capture ne montre pas). Lecture pilotée par js/reveal.js (data-autoplay). */
+  function videoTag(p, cls, url = s => s) {
+    return `<video${cls ? ` class="${cls}"` : ''} src="${url(p.video)}" poster="${url(p.poster)}" width="960" height="600" muted loop playsinline preload="none" data-autoplay aria-label="Défilement du site ${p.title}"></video>`;
+  }
+
   function projMedia(p) {
+    if (p.video) return videoTag(p, 'pin-img');
     if (p.preview)
       return `<div class="pin-viewport pin-scroll"><img class="pin-shot" src="${p.preview}" width="720" height="1350" alt="Aperçu du site ${p.title}" decoding="async"></div>`;
     if (p.img)
@@ -431,6 +478,7 @@
 
     const heroMedia = d.heroImg
       ? `<img src="${assetUrl(d.heroImg)}" alt="Aperçu — ${p.title}" loading="lazy">`
+      : p.video ? videoTag(p, '', assetUrl)
       : d.demoPath
         ? `<iframe src="${assetUrl(d.demoPath)}" title="${p.title}" loading="lazy"></iframe>`
         : MEDIA_PLACEHOLDER;
