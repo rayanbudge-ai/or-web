@@ -127,6 +127,44 @@
     },
 
     {
+      id: 'geotech-software',
+      service: 'app-web',
+      subType: 'logiciel',
+      subTypeLabel: 'Application web',
+      title: 'GeoTech Software',
+      tags: ['Multi-tenant', 'Hors ligne', 'Moteur de calcul', 'Tauri 2'],
+      desc: "Logiciel multi-tenant de saisie et de calcul pour laboratoires de géotechnique : dossiers, sondages, essais et PV, avec ou sans connexion.",
+      year: '2026',
+      /* Badge « interne » : logiciel en recette dans un laboratoire pilote,
+         sans accès public. Pas de liveUrl ni de démo, comme le CRM. */
+      badge: 'interne',
+      img: 'projets/img/geotech-software/log-sondage.png',
+      siteUrl: 'Quartech',
+      url: 'projets/geotech-software.html',
+      detail: {
+        metaTitle: 'GeoTech Software — Logiciel de laboratoire géotechnique | Portfolio OR-Web',
+        metaDesc: "Étude de cas GeoTech Software : logiciel multi-tenant et hors ligne pour laboratoires de géotechnique. Saisie des essais, moteur de calcul versionné, logs de sondage et PV. React, Fastify, Tauri 2, SQLite et PostgreSQL.",
+        label: 'Application web',
+        heroTitle: 'GeoTech <em class="kw">Software</em>',
+        heroDesc: "Logiciel de saisie et de calcul pour laboratoires de géotechnique : du dossier client jusqu'au PV signé, en passant par les sondages, les échantillons et les essais. Multi-tenant, utilisable hors connexion, en recette dans un laboratoire pilote — pas de démo publique.",
+        client: 'Laboratoire pilote',
+        category: 'Logiciel de laboratoire',
+        heroImg: 'projets/img/geotech-software/log-sondage.png',
+        /* Pas de champ `duration` : projet toujours en développement. */
+        screens: [
+          { addr: 'Quartech · Dossier ES-001.26.15', img: 'projets/img/geotech-software/dossier.png',         title: 'GeoTech Software — Fiche dossier et sondages', featured: true },
+          { addr: 'Quartech · Tableau de bord',      img: 'projets/img/geotech-software/tableau-de-bord.png', title: 'GeoTech Software — Tableau de bord' },
+        ],
+        paragraphs: [
+          "<strong>Le problème.</strong> Les laboratoires de géotechnique travaillent sur un logiciel Windows vieillissant, installé poste par poste : saisie lente, aucun partage entre le labo, le terrain et le bureau, et une connexion internet trop irrégulière pour basculer vers un simple outil en ligne. Or chaque résultat engage la signature d'un ingénieur.",
+          "<strong>La réponse.</strong> Un logiciel pensé pour la saisie au clavier, qui suit tout le parcours d'un dossier : client, sondages, échantillons, essais, PV. Un <strong>moteur de calcul isolé et versionné</strong> couvre les essais courants (teneur en eau, granulométrie, limites d'Atterberg, Proctor, CBR, œdomètre, pénétromètre dynamique, pressiomètre Ménard…) et se contrôle contre les cas de référence du laboratoire. Chaque essai suit un circuit saisie → vérification → validation par l'ingénieur, tracé dans une piste d'audit. Le log de sondage se dessine tout seul et s'exporte en PDF.",
+          "<strong>L'architecture.</strong> <strong>Offline-first</strong> : une application de bureau Tauri 2 travaille sur une base SQLite locale et se synchronise avec une API Fastify sur PostgreSQL quand la connexion revient. Chaque laboratoire est un espace isolé (multi-tenant). Interface React, schéma Drizzle tenu identique en SQLite et PostgreSQL, validations Zod partagées entre client et serveur, PV générés avec Typst. Le tout en monorepo, testé avec Vitest et Playwright.",
+        ],
+        stack: ['React', 'TypeScript', 'Fastify', 'PostgreSQL', 'SQLite', 'Drizzle ORM', 'Tauri 2', 'Typst', 'ECharts', 'Vitest'],
+      },
+    },
+
+    {
       id: 'voxline',
       service: 'app-web',
       subType: 'crm',
